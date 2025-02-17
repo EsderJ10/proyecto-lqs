@@ -1,19 +1,20 @@
 [gd_scene load_steps=4 format=3 uid="uid://b8tpceabf0tgk"]
 
 [ext_resource type="Script" path="res://Scripts/Character/player.gd" id="1_avkim"]
-[ext_resource type="Texture2D" uid="uid://cv7o6wwvr3v54" path="res://icon.svg" id="2_46f37"]
+[ext_resource type="Texture2D" uid="uid://oi1hl26in3es" path="res://Assets/Characters/player_sprite.png" id="2_b4txq"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_xifsn"]
-size = Vector2(117, 114)
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_547iw"]
 
 [node name="Player" type="Area2D"]
-position = Vector2(607, 297)
+position = Vector2(608, 290)
 script = ExtResource("1_avkim")
 metadata/_edit_group_ = true
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("2_46f37")
+texture = ExtResource("2_b4txq")
+hframes = 15
+vframes = 15
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(-2.5, 1)
-shape = SubResource("RectangleShape2D_xifsn")
+position = Vector2(-1, 1)
+shape = SubResource("CapsuleShape2D_547iw")
