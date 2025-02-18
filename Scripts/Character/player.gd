@@ -3,9 +3,6 @@ extends CharacterBody2D
 @export var speed = 421
 var screen_size
 
-func _ready() -> void:
-	screen_size = get_viewport_rect().size
-
 func _process(delta):
 	var velocity = Vector2.ZERO # Vector de movimiento del personaje (x,y)
 	
@@ -21,5 +18,5 @@ func _process(delta):
 	if velocity.length() > 0:
 		velocity = velocity.normalized() * speed  # Normalizamos para evitar que vaya a mayor velocidad en diagonal
 
-	position += velocity * delta
-	position = position.clamp(Vector2.ZERO, screen_size)
+	move_and_collide(velocity * delta) # Movimiento mientras detecta colisiones
+	
