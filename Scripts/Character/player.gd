@@ -1,22 +1,21 @@
 extends CharacterBody2D
 
 @export var speed = 421
-var screen_size
 
 func _process(delta):
-	var velocity = Vector2.ZERO # Vector de movimiento del personaje (x,y)
+	var movement = Vector2.ZERO # Vector de movimiento del personaje (x,y)
 	
 	if Input.is_action_pressed("move_right"):
-		velocity.x += 1
+		movement.x += 1
 	if Input.is_action_pressed("move_left"):
-		velocity.x -= 1
+		movement.x -= 1
 	if Input.is_action_pressed("move_up"):
-		velocity.y -= 1
+		movement.y -= 1
 	if Input.is_action_pressed("move_down"):
-		velocity.y += 1
+		movement.y += 1
 
-	if velocity.length() > 0:
-		velocity = velocity.normalized() * speed  # Normalizamos para evitar que vaya a mayor velocidad en diagonal
+	if movement.length() > 0:
+		movement = movement.normalized() * speed  # Normalizamos para evitar que vaya a mayor velocidad en diagonal
 
-	move_and_collide(velocity * delta) # Movimiento mientras detecta colisiones
+	move_and_collide(movement * delta) # Movimiento mientras detecta colisiones
 	
