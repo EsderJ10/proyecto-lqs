@@ -1,29 +1,29 @@
 [gd_scene load_steps=9 format=3 uid="uid://b8tpceabf0tgk"]
 
 [ext_resource type="Script" path="res://Scripts/Character/player.gd" id="1_avkim"]
-[ext_resource type="Texture2D" uid="uid://oi1hl26in3es" path="res://Assets/Characters/player_sprite.png" id="2_jfwtd"]
+[ext_resource type="Texture2D" uid="uid://caije7b6stfgm" path="res://Assets/Characters/player_sprite.png" id="2_jfwtd"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_dv1p1"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_gtob1"]
 atlas = ExtResource("2_jfwtd")
-region = Rect2(241, 150, 32, 32)
+region = Rect2(0, 0, 64, 64)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_jct1v"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_dymnb"]
 atlas = ExtResource("2_jfwtd")
-region = Rect2(209, 118, 32, 32)
+region = Rect2(64, 64, 64, 64)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_jlay1"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_vcw1m"]
 atlas = ExtResource("2_jfwtd")
-region = Rect2(273, 118, 32, 32)
+region = Rect2(64, 0, 64, 64)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_w2mi5"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_4xxnx"]
 atlas = ExtResource("2_jfwtd")
-region = Rect2(241, 118, 32, 32)
+region = Rect2(0, 64, 64, 64)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_tldux"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_dv1p1")
+"texture": SubResource("AtlasTexture_gtob1")
 }],
 "loop": true,
 "name": &"down",
@@ -31,7 +31,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_jct1v")
+"texture": SubResource("AtlasTexture_dymnb")
 }],
 "loop": true,
 "name": &"left",
@@ -39,7 +39,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_jlay1")
+"texture": SubResource("AtlasTexture_vcw1m")
 }],
 "loop": true,
 "name": &"right",
@@ -47,7 +47,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_w2mi5")
+"texture": SubResource("AtlasTexture_4xxnx")
 }],
 "loop": true,
 "name": &"up",
