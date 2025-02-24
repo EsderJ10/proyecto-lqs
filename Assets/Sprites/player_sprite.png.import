@@ -2,25 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://caije7b6stfgm"
-<<<<<<< HEAD:Assets/Characters/player_sprite.png.import
-path="res://.godot/imported/player_sprite.png-8716dce5f42806dcd8db337e84e2d571.ctex"
-=======
+uid="uid://cankgk3ve1b60"
 path="res://.godot/imported/player_sprite.png-33f790aac51928616a55eaa21c0ed456.ctex"
->>>>>>> 8b8325c462ea3d7e7e96c980d40519025aa3d318:Assets/Sprites/player_sprite.png.import
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-<<<<<<< HEAD:Assets/Characters/player_sprite.png.import
-source_file="res://Assets/Characters/player_sprite.png"
-dest_files=["res://.godot/imported/player_sprite.png-8716dce5f42806dcd8db337e84e2d571.ctex"]
-=======
 source_file="res://Assets/Sprites/player_sprite.png"
 dest_files=["res://.godot/imported/player_sprite.png-33f790aac51928616a55eaa21c0ed456.ctex"]
->>>>>>> 8b8325c462ea3d7e7e96c980d40519025aa3d318:Assets/Sprites/player_sprite.png.import
 
 [params]
 
@@ -28,7 +19,7 @@ compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=1
 compress/channel_pack=0
 mipmaps/generate=false
 mipmaps/limit=-1
@@ -40,4 +31,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

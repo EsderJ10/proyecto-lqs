@@ -503,3 +503,5 @@ collision_visibility_mode = 1
 position = Vector2(547, 295)
 
 [node name="audio_background" parent="." instance=ExtResource("3_bwtym")]
+volume_db = -5.0
+parameters/looping = true

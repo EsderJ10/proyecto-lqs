@@ -2,8 +2,9 @@
 
 ## HIGH
 
-- [ ] Modificar el sprite del personaje.
+- [x] Modificar el sprite del personaje.
 - [ ] Modificar el tileset.
+- [ ] Modificar la importación de los sprites para evitar/reducir el pixelado.
 
 ## MEDIUM
 
@@ -11,4 +12,4 @@
 
 ## LOW
 
-- [ ]  Añadir nodo para reproducir sonidos (música, efectos, etc.)
+- [x]  Añadir nodo para reproducir música.
