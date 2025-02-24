@@ -15,10 +15,6 @@ run/main_scene="res://Scenes/test_room.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
 config/icon="res://icon.svg"
 
-[display]
-
-display_server/driver.linuxbsd="wayland"
-
 [dotnet]
 
 project/assembly_name="LQS"
