@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=4 uid="uid://bpvfh054w0r22"]
+[gd_scene load_steps=6 format=4 uid="uid://bpvfh054w0r22"]
 
-[ext_resource type="Texture2D" uid="uid://c1e4ok8jsx7rp" path="res://Assets/Maps/tileset_tutorial.png" id="1_e6fjm"]
+[ext_resource type="Texture2D" uid="uid://c1e4ok8jsx7rp" path="res://Assets/Tilesets/tileset_tutorial.png" id="1_e6fjm"]
 [ext_resource type="PackedScene" uid="uid://b8tpceabf0tgk" path="res://Scenes/player.tscn" id="2_cvyy1"]
+[ext_resource type="PackedScene" uid="uid://8acbffwdxaxm" path="res://Scenes/audio_background.tscn" id="3_bwtym"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_to48t"]
 texture = ExtResource("1_e6fjm")
@@ -500,3 +501,7 @@ collision_visibility_mode = 1
 
 [node name="Player" parent="." instance=ExtResource("2_cvyy1")]
 position = Vector2(547, 295)
+
+[node name="audio_background" parent="." instance=ExtResource("3_bwtym")]
+volume_db = -5.0
+parameters/looping = true

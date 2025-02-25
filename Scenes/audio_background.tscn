@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://8acbffwdxaxm"]
+
+[ext_resource type="AudioStream" uid="uid://ciyuij6klrrn6" path="res://Assets/Audio/Las Cuatro Damas.mp3" id="1_s6rtv"]
+
+[node name="audio_background" type="AudioStreamPlayer"]
+stream = ExtResource("1_s6rtv")
+autoplay = true
