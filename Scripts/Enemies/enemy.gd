@@ -16,29 +16,27 @@ func _physics_process(delta: float) -> void:
 	
 	match current_dir:
 		Direction.UP:
-			motion = Vector2(0, -1)
+			motion = Vector2.UP
 			animated_sprite.play("up")
 		Direction.DOWN:
-			motion = Vector2(0, 1)
+			motion = Vector2.DOWN
 			animated_sprite.play("down")
 		Direction.LEFT:
-			motion = Vector2(1, 0)
+			motion = Vector2.LEFT
 			animated_sprite.play("left")
 		Direction.RIGHT:
-			motion = Vector2(-1, 0)
+			motion = Vector2.RIGHT
 			animated_sprite.play("right")
 	
 	if not animated_sprite.is_playing():
 		animated_sprite.play()
 	
-	var movement: Vector2 = motion * speed
+	var movement: Vector2 = motion * speed * delta
 	
-	if (get_slide_collision_count() > 0):
-		print(get_slide_collision_count())
-		var new_dir: int = randi() % 4
-		print(new_dir)
-		while new_dir == int(current_dir):
-			new_dir = randi() % 4
-			current_dir = new_dir
+	var collision = move_and_collide(movement)
 	
-	move_and_collide(movement * delta)
+	if collision:
+		var new_dir: int = randi_range(0,3)
+		while new_dir == current_dir:
+			new_dir = randi_range(0,3)
+		current_dir = Direction.values()[new_dir]
