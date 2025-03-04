@@ -24,3 +24,6 @@ func _process(delta):
 
 	move_and_collide(movement * delta) # Movimiento mientras detecta colisiones
 	
+# Función para que los enemigos detecten al personaje/jugador
+func player():
+	pass
