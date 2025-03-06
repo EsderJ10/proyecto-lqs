@@ -20,7 +20,6 @@ func _physics_process(delta: float) -> void:
 		if player_in_area and player:
 			# Dirección relativa del personaje/jugador
 			var direction_to_player = (player.position - position).normalized()
-		
 			position += direction_to_player * speed * delta
 			# Actualizar la animación según la posición relativa del personaje/jugador
 			_update_animation(direction_to_player)
