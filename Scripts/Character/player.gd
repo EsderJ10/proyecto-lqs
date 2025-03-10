@@ -18,6 +18,7 @@ func _ready() -> void:
 	
 	attack_timer.timeout.connect(_on_attack_timer_timeout)
 	attack_cooldown_timer.timeout.connect(_on_attack_cooldown_timer_timeout)
+	hitbox_attack.body_entered.connect(_on_hitbox_attack_body_entered)
 
 func _process(_float) -> void:
 	if Input.is_action_just_pressed("player_attack") and can_attack:
@@ -85,6 +86,10 @@ func _on_attack_timer_timeout() -> void:
 
 func _on_attack_cooldown_timer_timeout() -> void:
 	can_attack = true
+
+func _on_hitbox_attack_body_entered(body: Node2D) -> void:
+	if body.has_method("take_damage"):
+		body.take_damage(1)
 
 # Función para que los enemigos detecten al personaje/jugador
 func player():
