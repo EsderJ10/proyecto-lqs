@@ -56,7 +56,8 @@ animations = [{
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_547iw"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_cvnsp"]
+[sub_resource type="SeparationRayShape2D" id="SeparationRayShape2D_cvnsp"]
+length = 27.0
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_avkim")
@@ -69,10 +70,13 @@ animation = &"down"
 position = Vector2(-1, 1)
 shape = SubResource("CapsuleShape2D_547iw")
 
-[node name="Area2D" type="Area2D" parent="."]
+[node name="HitboxAttack" type="Area2D" parent="."]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxAttack"]
 position = Vector2(-1, 28)
-shape = SubResource("CircleShape2D_cvnsp")
-one_way_collision = true
+shape = SubResource("SeparationRayShape2D_cvnsp")
 debug_color = Color(0.780821, 0.436582, 5.77569e-07, 0.42)
+
+[node name="AttackCooldownTimer" type="Timer" parent="."]
+
+[node name="AttackTimer" type="Timer" parent="."]
