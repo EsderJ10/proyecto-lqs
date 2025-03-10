@@ -1,6 +1,6 @@
 # proyecto-lqs
 
-- Godot Engine &rarr; 4.3
+- Godot Engine &rarr; 4.4
 
 ## Bugs Conocidos
 
