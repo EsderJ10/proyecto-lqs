@@ -82,4 +82,8 @@ debug_color = Color(0.780821, 0.436582, 5.77569e-07, 0.42)
 
 [node name="AttackTimer" type="Timer" parent="."]
 
+[node name="DashTimer" type="Timer" parent="."]
+
+[node name="DashCooldownTimer" type="Timer" parent="."]
+
 [connection signal="body_entered" from="HitboxAttack" to="." method="_on_hitbox_attack_body_entered"]
