@@ -1,6 +1,6 @@
-[gd_scene load_steps=9 format=3 uid="uid://b8tpceabf0tgk"]
+[gd_scene load_steps=10 format=3 uid="uid://b8tpceabf0tgk"]
 
-[ext_resource type="Script" path="res://Scripts/Character/player.gd" id="1_avkim"]
+[ext_resource type="Script" uid="uid://bxebkx77nuvls" path="res://Scripts/Character/player.gd" id="1_avkim"]
 [ext_resource type="Texture2D" uid="uid://cankgk3ve1b60" path="res://Assets/Sprites/player_sprite.png" id="2_jfwtd"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_gtob1"]
@@ -56,10 +56,10 @@ animations = [{
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_547iw"]
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_cvnsp"]
+
 [node name="Player" type="CharacterBody2D"]
-position = Vector2(608, 290)
 script = ExtResource("1_avkim")
-metadata/_edit_group_ = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_tldux")
@@ -68,3 +68,11 @@ animation = &"down"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(-1, 1)
 shape = SubResource("CapsuleShape2D_547iw")
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(-1, 28)
+shape = SubResource("CircleShape2D_cvnsp")
+one_way_collision = true
+debug_color = Color(0.780821, 0.436582, 5.77569e-07, 0.42)
