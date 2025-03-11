@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=3 uid="uid://dx2namwh5pomm"]
 
-[ext_resource type="Script" path="res://Scripts/Enemies/slime.gd" id="1_eg50x"]
+[ext_resource type="Script" uid="uid://c8rwhpxu1h0fp" path="res://Scripts/Enemies/slime.gd" id="1_eg50x"]
 [ext_resource type="Texture2D" uid="uid://ct63c7e8kya7c" path="res://Assets/Sprites/slime.png" id="2_dpkjc"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_eglbl"]
@@ -62,7 +62,6 @@ height = 24.0
 radius = 456.089
 
 [node name="Slime" type="CharacterBody2D"]
-position = Vector2(546, 254)
 script = ExtResource("1_eg50x")
 metadata/_edit_group_ = true
 
@@ -78,5 +77,8 @@ shape = SubResource("CapsuleShape2D_gvihc")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea"]
 shape = SubResource("CircleShape2D_bubeg")
 
+[node name="StunTimer" type="Timer" parent="."]
+
 [connection signal="body_entered" from="DetectionArea" to="." method="_on_detection_area_body_entered"]
 [connection signal="body_exited" from="DetectionArea" to="." method="_on_detection_area_body_exited"]
+[connection signal="timeout" from="StunTimer" to="." method="_on_stun_timer_timeout"]

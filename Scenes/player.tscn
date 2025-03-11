@@ -1,6 +1,6 @@
-[gd_scene load_steps=9 format=3 uid="uid://b8tpceabf0tgk"]
+[gd_scene load_steps=10 format=3 uid="uid://b8tpceabf0tgk"]
 
-[ext_resource type="Script" path="res://Scripts/Character/player.gd" id="1_avkim"]
+[ext_resource type="Script" uid="uid://bxebkx77nuvls" path="res://Scripts/Character/player.gd" id="1_avkim"]
 [ext_resource type="Texture2D" uid="uid://cankgk3ve1b60" path="res://Assets/Sprites/player_sprite.png" id="2_jfwtd"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_gtob1"]
@@ -56,10 +56,11 @@ animations = [{
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_547iw"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cvnsp"]
+size = Vector2(36, 49)
+
 [node name="Player" type="CharacterBody2D"]
-position = Vector2(608, 290)
 script = ExtResource("1_avkim")
-metadata/_edit_group_ = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_tldux")
@@ -68,3 +69,24 @@ animation = &"down"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(-1, 1)
 shape = SubResource("CapsuleShape2D_547iw")
+
+[node name="HitboxAttack" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxAttack"]
+position = Vector2(0, 38)
+shape = SubResource("RectangleShape2D_cvnsp")
+debug_color = Color(0.780821, 0.436582, 5.77569e-07, 0.42)
+
+[node name="AttackCooldownTimer" type="Timer" parent="."]
+
+[node name="AttackTimer" type="Timer" parent="."]
+
+[node name="DashTimer" type="Timer" parent="."]
+
+[node name="DashCooldownTimer" type="Timer" parent="."]
+
+[connection signal="body_entered" from="HitboxAttack" to="." method="_on_hitbox_attack_body_entered"]
+[connection signal="timeout" from="AttackCooldownTimer" to="." method="_on_attack_cooldown_timer_timeout"]
+[connection signal="timeout" from="AttackTimer" to="." method="_on_attack_timer_timeout"]
+[connection signal="timeout" from="DashTimer" to="." method="_on_dash_timer_timeout"]
+[connection signal="timeout" from="DashCooldownTimer" to="." method="_on_dash_cooldown_timer_timeout"]
