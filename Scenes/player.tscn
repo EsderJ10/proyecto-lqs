@@ -61,7 +61,6 @@ size = Vector2(36, 49)
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_avkim")
-metadata/_edit_group_ = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_tldux")
@@ -74,7 +73,7 @@ shape = SubResource("CapsuleShape2D_547iw")
 [node name="HitboxAttack" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitboxAttack"]
-position = Vector2(0, 34)
+position = Vector2(0, 38)
 shape = SubResource("RectangleShape2D_cvnsp")
 debug_color = Color(0.780821, 0.436582, 5.77569e-07, 0.42)
 
