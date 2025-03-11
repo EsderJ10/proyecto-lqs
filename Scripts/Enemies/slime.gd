@@ -17,8 +17,6 @@ var is_stunned: bool = false
 
 func _ready() -> void:
 	is_dead = false
-	
-	stun_timer.timeout.connect(_on_stun_timer_timeout)
 
 func _physics_process(delta: float) -> void:
 	if is_dead or is_stunned:

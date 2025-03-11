@@ -1,10 +1,9 @@
 extends CharacterBody2D
 
 @export var speed: int = 421
-@export var is_attacking: bool = false
 @export var attack_duration: float = 0.3
 @export var attack_cooldown: float = 0.5
-@export var dash_speed: int = 1200 
+@export var dash_speed: int = 1211 
 @export var dash_duration: float = 0.3
 @export var dash_cooldown: float = 1.0  
 
@@ -17,18 +16,13 @@ extends CharacterBody2D
 
 var can_attack: bool = true
 var can_dash: bool = true
+var is_attacking: bool = false
 var is_dashing: bool = false
 var current_direction: String = "down"
 var dash_direction: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	hitbox_attack.monitoring = false
-	
-	attack_timer.timeout.connect(_on_attack_timer_timeout)
-	attack_cooldown_timer.timeout.connect(_on_attack_cooldown_timer_timeout)
-	hitbox_attack.body_entered.connect(_on_hitbox_attack_body_entered)
-	dash_timer.timeout.connect(_on_dash_timer_timeout)
-	dash_cooldown_timer.timeout.connect(_on_dash_cooldown_timer_timeout)
 
 func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("player_attack") and can_attack and !is_dashing:
