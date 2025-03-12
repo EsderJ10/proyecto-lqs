@@ -1,21 +1,25 @@
 extends StaticBody2D
+
 # Parameters
 @export_enum("Front", "Left", "Right") var chest_perspective: String = "Front"
 @export var interaction_distance: float = 53.0
+
 # Nodes references
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var interaction_area: Area2D = $InteractionArea
 @onready var interaction_shape: CollisionShape2D = $InteractionArea/InteractionShape
+
 # State variables
 var is_open: bool = false
 var player_in_range: bool = false
 var player: Node2D = null
+
 # Dimensions for different perspectives
 const FRONT_COLLISION_SIZE: Vector2 = Vector2(58, 33)
 const SIDE_COLLISION_SIZE: Vector2 = Vector2(31, 54)
-const FRONT_INTERACTION_SIZE: Vector2 = Vector2(90, 65)
-const SIDE_INTERACTION_SIZE: Vector2 = Vector2(45, 65)
+const FRONT_INTERACTION_SIZE: Vector2 = Vector2(65, 35)
+const SIDE_INTERACTION_SIZE: Vector2 = Vector2(35, 65)
 
 func _ready() -> void:
 	is_open = false
