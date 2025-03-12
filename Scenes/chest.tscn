@@ -1,0 +1,109 @@
+[gd_scene load_steps=12 format=3 uid="uid://ddamgcjpa8oka"]
+
+[ext_resource type="Script" uid="uid://b7ses8aewqn0o" path="res://Scripts/Interactions/chest.gd" id="1_cjfl1"]
+[ext_resource type="Texture2D" uid="uid://bj1ddvbyjxqho" path="res://Assets/Tilesets/Decorations/wooden_chest.png" id="2_bagqn"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pmguq"]
+atlas = ExtResource("2_bagqn")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dq33m"]
+atlas = ExtResource("2_bagqn")
+region = Rect2(0, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j6qf6"]
+atlas = ExtResource("2_bagqn")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_25pds"]
+atlas = ExtResource("2_bagqn")
+region = Rect2(64, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uovm1"]
+atlas = ExtResource("2_bagqn")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mrmno"]
+atlas = ExtResource("2_bagqn")
+region = Rect2(128, 64, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_k15qg"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pmguq")
+}],
+"loop": true,
+"name": &"front_closed",
+"speed": 2.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dq33m")
+}],
+"loop": true,
+"name": &"front_open",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j6qf6")
+}],
+"loop": true,
+"name": &"left_closed",
+"speed": 2.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_25pds")
+}],
+"loop": true,
+"name": &"left_open",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uovm1")
+}],
+"loop": true,
+"name": &"right_closed",
+"speed": 2.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mrmno")
+}],
+"loop": true,
+"name": &"right_open",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cjfl1"]
+size = Vector2(58, 38)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1puaa"]
+size = Vector2(56, 35)
+
+[node name="Chest" type="StaticBody2D"]
+position = Vector2(71, 33)
+script = ExtResource("1_cjfl1")
+chest_perspective = "Left"
+metadata/_edit_group_ = true
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_k15qg")
+animation = &"front_closed"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -2)
+shape = SubResource("RectangleShape2D_cjfl1")
+
+[node name="InteractionArea" type="Area2D" parent="."]
+
+[node name="InteractionShape" type="CollisionShape2D" parent="InteractionArea"]
+position = Vector2(0, -2.5)
+shape = SubResource("RectangleShape2D_1puaa")
+debug_color = Color(0, 0.644663, 0.276369, 0.42)
+
+[connection signal="body_entered" from="InteractionArea" to="." method="_on_interaction_area_body_entered"]
+[connection signal="body_exited" from="InteractionArea" to="." method="_on_interaction_area_body_exited"]
