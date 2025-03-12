@@ -1,12 +1,15 @@
 extends StaticBody2D
 
+# Parameters
 @export_enum("Front", "Left", "Right") var chest_perspective: String = "Front"
 @export var interaction_distance: float = 53.0
 
+# Nodes references
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var interaction_area: Area2D = $InteractionArea
 
+# State variables
 var is_open: bool = false
 var player_in_range: bool = false
 var player: Node2D = null
@@ -55,7 +58,7 @@ func open_chest() -> void:
 	
 	# TODO: Implement sound effect
 	
-	# Todo: Implement animation
+	# TODO: Implement animation
 	var tween = create_tween()
 	tween.tween_property(animated_sprite, "scale", Vector2(1.1, 1.1), 0.1)
 	tween.tween_property(animated_sprite, "scale", Vector2(1.0, 1.0), 0.1)
