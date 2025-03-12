@@ -1,26 +1,39 @@
 extends StaticBody2D
-
 # Parameters
 @export_enum("Front", "Left", "Right") var chest_perspective: String = "Front"
 @export var interaction_distance: float = 53.0
-
 # Nodes references
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var interaction_area: Area2D = $InteractionArea
-
+@onready var interaction_shape: CollisionShape2D = $InteractionArea/InteractionShape
 # State variables
 var is_open: bool = false
 var player_in_range: bool = false
 var player: Node2D = null
-var front_collision_size: Vector2 = Vector2(58, 33) 
-var side_collision_size: Vector2 = Vector2(31, 54)   
+# Dimensions for different perspectives
+const FRONT_COLLISION_SIZE: Vector2 = Vector2(58, 33)
+const SIDE_COLLISION_SIZE: Vector2 = Vector2(31, 54)
+const FRONT_INTERACTION_SIZE: Vector2 = Vector2(90, 65)
+const SIDE_INTERACTION_SIZE: Vector2 = Vector2(45, 65)
 
 func _ready() -> void:
 	is_open = false
+	# Create unique shape resources for this instance
+	create_unique_shapes()
+	# Apply the correct perspective
 	update_chest_appearance()
 
-func _process(_delta: float) -> void:
+func create_unique_shapes() -> void:
+	# Create a new unique RectangleShape2D for collision
+	var new_collision_shape = RectangleShape2D.new()
+	collision_shape.shape = new_collision_shape
+	
+	# Create a new unique RectangleShape2D for interaction
+	var new_interaction_shape = RectangleShape2D.new()
+	interaction_shape.shape = new_interaction_shape
+
+func _process(delta: float) -> void:
 	if player_in_range and player and Input.is_action_just_pressed("open_chest"):
 		open_chest()
 
@@ -32,22 +45,36 @@ func update_chest_appearance() -> void:
 	var animation_name = chest_perspective.to_lower() + "_" + state
 	animated_sprite.play(animation_name)
 	
-	update_collision_shape()
+	update_shapes()
 
-func update_collision_shape() -> void:
-	var rect_shape = collision_shape.shape as RectangleShape2D
+func update_shapes() -> void:
+	var collision_rect_shape = collision_shape.shape as RectangleShape2D
 	
-	if rect_shape:
+	if collision_rect_shape:
 		match chest_perspective:
 			"Front":
-				rect_shape.size = front_collision_size
+				collision_rect_shape.size = FRONT_COLLISION_SIZE
 				collision_shape.position = Vector2(0, 0)
-			"Left", "Right":
-				rect_shape.size = side_collision_size
-				if chest_perspective == "Left":
-					collision_shape.position = Vector2(-4, 0)  
-				else:
-					collision_shape.position = Vector2(4, 0)   
+			"Left":
+				collision_rect_shape.size = SIDE_COLLISION_SIZE
+				collision_shape.position = Vector2(-4, 0)
+			"Right":
+				collision_rect_shape.size = SIDE_COLLISION_SIZE
+				collision_shape.position = Vector2(4, 0)
+	
+	var interaction_rect_shape = interaction_shape.shape as RectangleShape2D
+	
+	if interaction_rect_shape:
+		match chest_perspective:
+			"Front":
+				interaction_rect_shape.size = FRONT_INTERACTION_SIZE
+				interaction_shape.position = Vector2(0, 0)
+			"Left":
+				interaction_rect_shape.size = SIDE_INTERACTION_SIZE
+				interaction_shape.position = Vector2(-4, 0)
+			"Right":
+				interaction_rect_shape.size = SIDE_INTERACTION_SIZE
+				interaction_shape.position = Vector2(4, 0)
 
 func open_chest() -> void:
 	if is_open:
@@ -58,7 +85,7 @@ func open_chest() -> void:
 	
 	# TODO: Implement sound effect
 	
-	# TODO: Implement animation
+	# Animation
 	var tween = create_tween()
 	tween.tween_property(animated_sprite, "scale", Vector2(1.1, 1.1), 0.1)
 	tween.tween_property(animated_sprite, "scale", Vector2(1.0, 1.0), 0.1)

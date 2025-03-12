@@ -85,14 +85,12 @@ size = Vector2(58, 38)
 size = Vector2(56, 35)
 
 [node name="Chest" type="StaticBody2D"]
-position = Vector2(71, 33)
 script = ExtResource("1_cjfl1")
-chest_perspective = "Left"
 metadata/_edit_group_ = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_k15qg")
-animation = &"front_closed"
+animation = &"left_closed"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -2)
