@@ -1,11 +1,17 @@
 extends CharacterBody2D
+class_name Player
 
 # Properties
+@export_group("Movement")
 @export var speed: int = 421
 @export var acceleration: float = 0.5
 @export var friction: float = 0.7
+
+@export_group("Combat")
 @export var attack_duration: float = 0.3
 @export var attack_cooldown: float = 0.5
+
+@export_group("Dash")
 @export var dash_speed: int = 1211 
 @export var dash_duration: float = 0.3
 @export var dash_cooldown: float = 1.0  
@@ -27,9 +33,29 @@ var current_direction: String = "down"
 var dash_direction: Vector2 = Vector2.ZERO
 var movement_input: Vector2 = Vector2.ZERO
 
+# Direction vectors and hitbox rotations
+const DIRECTION_VECTORS = {
+	"right": Vector2(1, 0),
+	"left": Vector2(-1, 0),
+	"up": Vector2(0, -1),
+	"down": Vector2(0, 1)
+}
+
+const HITBOX_ROTATIONS = {
+	"right": -90.0,
+	"left": 90.0,
+	"up": 180.0,
+	"down": 0.0
+}
+
 func _ready() -> void:
+	initialize_player()
+
+func initialize_player() -> void:
+	# Configure hitbox
 	hitbox_attack.monitoring = false
-	# Setup timers
+	
+	# Configure timers
 	attack_timer.wait_time = attack_duration
 	attack_cooldown_timer.wait_time = attack_cooldown
 	dash_timer.wait_time = dash_duration
@@ -41,21 +67,22 @@ func _process(_delta: float) -> void:
 
 func _physics_process(_delta: float) -> void:
 	movement_input = get_movement_input()
-	
+	calculate_velocity()
+	move_and_slide()
+
+func calculate_velocity() -> void:
 	var target_velocity = Vector2.ZERO
 	
 	if is_dashing:
 		target_velocity = dash_direction * dash_speed
 	else:
 		target_velocity = movement_input * speed
-		
-	# Smoother movement with acceleration and friction applied
+	
+	# Apply the acceleration or friction based on movement
 	if target_velocity.length() > 0:
 		velocity = velocity.lerp(target_velocity, acceleration)
 	else:
 		velocity = velocity.lerp(Vector2.ZERO, friction)
-	
-	move_and_slide()
 
 func handle_input() -> void:
 	if Input.is_action_just_pressed("player_attack") and can_attack:
@@ -66,6 +93,7 @@ func handle_input() -> void:
 func get_movement_input() -> Vector2:
 	var input = Vector2.ZERO
 	
+	# Check each direction and set the current facing direction
 	if Input.is_action_pressed("move_right"):
 		input.x += 1
 		current_direction = "right"
@@ -79,21 +107,22 @@ func get_movement_input() -> Vector2:
 		input.y += 1
 		current_direction = "down"
 	
+	# Normalize only if input has length to avoid divide by zero
 	return input.normalized() if input.length() > 0 else input
 
 func update_animation() -> void:
-	if movement_input.length() > 0 and !is_dashing:
-		# Assign animation based on movement direction
+	if is_attacking:
+		# TODO: ATTACK animation
+		pass
+	elif is_dashing:
+		# TODO: DASH animation
+		pass
+	elif movement_input.length() > 0:
+		# Determine animation based on dominant direction
 		if abs(movement_input.x) > abs(movement_input.y):
-			if movement_input.x > 0:
-				animated_sprite.play("right")
-			else:
-				animated_sprite.play("left")
+			animated_sprite.play("right" if movement_input.x > 0 else "left")
 		else:
-			if movement_input.y > 0:
-				animated_sprite.play("down")
-			else:
-				animated_sprite.play("up")
+			animated_sprite.play("down" if movement_input.y > 0 else "up")
 
 func attack() -> void:
 	is_attacking = true
@@ -110,42 +139,17 @@ func dash() -> void:
 	is_dashing = true
 	can_dash = false
 	
-	# Determine dash direction based on input or current facing direction
-	if movement_input != Vector2.ZERO:
-		dash_direction = movement_input
-	else:
-		dash_direction = get_direction_vector(current_direction)
+	# Use current movement input or facing direction
+	dash_direction = movement_input if movement_input != Vector2.ZERO else DIRECTION_VECTORS[current_direction]
 	
 	# Start timers
 	dash_timer.start()
 	dash_cooldown_timer.start()
 
-func get_direction_vector(dir: String) -> Vector2:
-	match dir:
-		"right":
-			return Vector2(1, 0)
-		"left":
-			return Vector2(-1, 0)
-		"up":
-			return Vector2(0, -1)
-		"down":
-			return Vector2(0, 1)
-	return Vector2.ZERO
-
 func position_hitbox() -> void:
-	# Adjust hitbox position/rotation based on the current direction
-	match current_direction:
-		"right":
-			hitbox_attack.rotation_degrees = -90
-		"left":
-			hitbox_attack.rotation_degrees = 90
-		"up":
-			hitbox_attack.rotation_degrees = 180
-		"down":
-			hitbox_attack.rotation_degrees = 0
+	hitbox_attack.rotation_degrees = HITBOX_ROTATIONS[current_direction]
 
 func _on_attack_timer_timeout() -> void:
-	# Disable the hitbox after attack
 	hitbox_attack.monitoring = false
 	is_attacking = false
 
@@ -163,5 +167,6 @@ func _on_hitbox_attack_body_entered(body: Node2D) -> void:
 		body.take_damage(1)
 
 # Function for enemy detection
-func player():
+func player() -> void:
+	# This function exists for enemy detection
 	pass
