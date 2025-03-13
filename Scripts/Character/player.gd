@@ -10,6 +10,7 @@ class_name Player
 @export_group("Combat")
 @export var attack_duration: float = 0.3
 @export var attack_cooldown: float = 0.5
+@export var attack_damage: int = 1
 
 @export_group("Dash")
 @export var dash_speed: int = 1211 
@@ -24,42 +25,63 @@ class_name Player
 @onready var dash_timer: Timer = $DashTimer
 @onready var dash_cooldown_timer: Timer = $DashCooldownTimer
 
+# State Machine
+enum State {IDLE, MOVING, ATTACKING, DASHING}
+var current_state: State = State.IDLE
+
+# Direction Management
+enum Direction {RIGHT, LEFT, UP, DOWN}
+var current_direction: Direction = Direction.DOWN
+
 # State variables
-var can_attack: bool = true
-var can_dash: bool = true
-var is_attacking: bool = false
-var is_dashing: bool = false
-var current_direction: String = "down"
 var dash_direction: Vector2 = Vector2.ZERO
 var movement_input: Vector2 = Vector2.ZERO
+var can_attack: bool = true
+var can_dash: bool = true
 
-# Direction vectors and hitbox rotations
+# Constants for direction and hitbox
 const DIRECTION_VECTORS = {
-	"right": Vector2(1, 0),
-	"left": Vector2(-1, 0),
-	"up": Vector2(0, -1),
-	"down": Vector2(0, 1)
+	Direction.RIGHT: Vector2(1, 0),
+	Direction.LEFT: Vector2(-1, 0),
+	Direction.UP: Vector2(0, -1),
+	Direction.DOWN: Vector2(0, 1)
 }
 
 const HITBOX_ROTATIONS = {
-	"right": -90.0,
-	"left": 90.0,
-	"up": 180.0,
-	"down": 0.0
+	Direction.RIGHT: -90.0,
+	Direction.LEFT: 90.0,
+	Direction.UP: 180.0,
+	Direction.DOWN: 0.0
+}
+
+const DIRECTION_STRINGS = {
+	Direction.RIGHT: "right",
+	Direction.LEFT: "left",
+	Direction.UP: "up",
+	Direction.DOWN: "down"
 }
 
 func _ready() -> void:
 	initialize_player()
 
 func initialize_player() -> void:
-	# Configure hitbox
 	hitbox_attack.monitoring = false
 	
-	# Configure timers
+	# Configure the timers
 	attack_timer.wait_time = attack_duration
 	attack_cooldown_timer.wait_time = attack_cooldown
 	dash_timer.wait_time = dash_duration
 	dash_cooldown_timer.wait_time = dash_cooldown
+	
+	# Connect timer signals to prevent reconnection issues
+	if not attack_timer.timeout.is_connected(_on_attack_timer_timeout):
+		attack_timer.timeout.connect(_on_attack_timer_timeout)
+	if not attack_cooldown_timer.timeout.is_connected(_on_attack_cooldown_timer_timeout):
+		attack_cooldown_timer.timeout.connect(_on_attack_cooldown_timer_timeout)
+	if not dash_timer.timeout.is_connected(_on_dash_timer_timeout):
+		dash_timer.timeout.connect(_on_dash_timer_timeout)
+	if not dash_cooldown_timer.timeout.is_connected(_on_dash_cooldown_timer_timeout):
+		dash_cooldown_timer.timeout.connect(_on_dash_cooldown_timer_timeout)
 
 func _process(_delta: float) -> void:
 	handle_input()
@@ -73,10 +95,12 @@ func _physics_process(_delta: float) -> void:
 func calculate_velocity() -> void:
 	var target_velocity = Vector2.ZERO
 	
-	if is_dashing:
-		target_velocity = dash_direction * dash_speed
-	else:
-		target_velocity = movement_input * speed
+	match current_state:
+		State.DASHING:
+			target_velocity = dash_direction * dash_speed
+		State.IDLE, State.MOVING, State.ATTACKING:
+			if current_state != State.ATTACKING:
+				target_velocity = movement_input * speed
 	
 	# Apply the acceleration or friction based on movement
 	if target_velocity.length() > 0:
@@ -85,49 +109,69 @@ func calculate_velocity() -> void:
 		velocity = velocity.lerp(Vector2.ZERO, friction)
 
 func handle_input() -> void:
-	if Input.is_action_just_pressed("player_attack") and can_attack:
-		attack()
-	if Input.is_action_just_pressed("player_dash") and can_dash:
-		dash()
+	match current_state:
+		State.DASHING:
+			# No input processing during DASHING state
+			pass
+		State.ATTACKING:
+			# Limited input processing during ATTACKING state
+			if Input.is_action_just_pressed("player_dash") and can_dash:
+				change_state(State.DASHING)
+				dash()
+		State.IDLE, State.MOVING:
+			if Input.is_action_just_pressed("player_attack") and can_attack:
+				change_state(State.ATTACKING)
+				attack()
+			elif Input.is_action_just_pressed("player_dash") and can_dash:
+				change_state(State.DASHING)
+				dash()
 
 func get_movement_input() -> Vector2:
 	var input = Vector2.ZERO
 	
+	if current_state == State.ATTACKING:
+		return input
+	
 	# Check each direction and set the current facing direction
 	if Input.is_action_pressed("move_right"):
 		input.x += 1
-		current_direction = "right"
+		current_direction = Direction.RIGHT
 	if Input.is_action_pressed("move_left"):
 		input.x -= 1
-		current_direction = "left"
+		current_direction = Direction.LEFT
 	if Input.is_action_pressed("move_up"):
 		input.y -= 1
-		current_direction = "up"
+		current_direction = Direction.UP
 	if Input.is_action_pressed("move_down"):
 		input.y += 1
-		current_direction = "down"
+		current_direction = Direction.DOWN
+	
+	# Update movement state based on input
+	if input.length() > 0 and current_state == State.IDLE:
+		change_state(State.MOVING)
+	elif input.length() == 0 and current_state == State.MOVING:
+		change_state(State.IDLE)
 	
 	# Normalize only if input has length to avoid divide by zero
 	return input.normalized() if input.length() > 0 else input
 
 func update_animation() -> void:
-	if is_attacking:
-		# TODO: ATTACK animation
-		pass
-	elif is_dashing:
-		# TODO: DASH animation
-		pass
-	elif movement_input.length() > 0:
-		# Determine animation based on dominant direction
-		if abs(movement_input.x) > abs(movement_input.y):
-			animated_sprite.play("right" if movement_input.x > 0 else "left")
-		else:
-			animated_sprite.play("down" if movement_input.y > 0 else "up")
+	match current_state:
+		State.ATTACKING:
+			# TODO: ATTACKING Animation
+			animated_sprite.play(DIRECTION_STRINGS[current_direction])
+		State.DASHING:
+			# TODO: DASHING Animation
+			animated_sprite.play(DIRECTION_STRINGS[current_direction])
+		State.MOVING:
+			# Determine animation based on direction
+			animated_sprite.play(DIRECTION_STRINGS[current_direction])
+		State.IDLE:
+			# TODO: IDLE Animation
+			animated_sprite.play(DIRECTION_STRINGS[current_direction])
 
 func attack() -> void:
-	is_attacking = true
 	can_attack = false
-	
 	position_hitbox()
 	hitbox_attack.monitoring = true
 	
@@ -136,9 +180,7 @@ func attack() -> void:
 	attack_cooldown_timer.start()
 
 func dash() -> void:
-	is_dashing = true
 	can_dash = false
-	
 	# Use current movement input or facing direction
 	dash_direction = movement_input if movement_input != Vector2.ZERO else DIRECTION_VECTORS[current_direction]
 	
@@ -149,24 +191,51 @@ func dash() -> void:
 func position_hitbox() -> void:
 	hitbox_attack.rotation_degrees = HITBOX_ROTATIONS[current_direction]
 
+func change_state(new_state: State) -> void:
+	# Exit current state logic
+	match current_state:
+		State.ATTACKING:
+			hitbox_attack.monitoring = false
+		State.DASHING:
+			pass
+		State.MOVING:
+			pass
+		State.IDLE:
+			pass
+	
+	# Change state
+	current_state = new_state
+	
+	# Enter new state logic
+	match new_state:
+		State.ATTACKING:
+			pass
+		State.DASHING:
+			pass
+		State.MOVING:
+			pass
+		State.IDLE:
+			pass
+
 func _on_attack_timer_timeout() -> void:
-	hitbox_attack.monitoring = false
-	is_attacking = false
+	if current_state == State.ATTACKING:
+		hitbox_attack.monitoring = false
+		change_state(State.IDLE)
 
 func _on_attack_cooldown_timer_timeout() -> void:
 	can_attack = true
 
 func _on_dash_timer_timeout() -> void:
-	is_dashing = false
+	if current_state == State.DASHING:
+		change_state(State.IDLE)
 	
 func _on_dash_cooldown_timer_timeout() -> void:
 	can_dash = true
 
 func _on_hitbox_attack_body_entered(body: Node2D) -> void:
 	if body.has_method("take_damage"):
-		body.take_damage(1)
+		body.take_damage(attack_damage)
 
 # Function for enemy detection
 func player() -> void:
-	# This function exists for enemy detection
 	pass
