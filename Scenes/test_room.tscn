@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=4 uid="uid://bpvfh054w0r22"]
+[gd_scene load_steps=8 format=4 uid="uid://bpvfh054w0r22"]
 
 [ext_resource type="Texture2D" uid="uid://wf1llo22bi6o" path="res://Assets/Tilesets/tileset_tutorial.png" id="1_e6fjm"]
 [ext_resource type="PackedScene" uid="uid://b8tpceabf0tgk" path="res://Scenes/player.tscn" id="2_cvyy1"]
 [ext_resource type="PackedScene" uid="uid://8acbffwdxaxm" path="res://Scenes/audio_background.tscn" id="3_bwtym"]
 [ext_resource type="PackedScene" uid="uid://dx2namwh5pomm" path="res://Scenes/slime.tscn" id="4_ql2hy"]
+[ext_resource type="PackedScene" uid="uid://ddamgcjpa8oka" path="res://Scenes/chest.tscn" id="5_3tvqv"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_qwrx2"]
 texture = ExtResource("1_e6fjm")
@@ -981,3 +982,14 @@ position = Vector2(898, 299)
 [node name="audio_background" parent="." instance=ExtResource("3_bwtym")]
 volume_db = -5.0
 parameters/looping = true
+
+[node name="Chest" parent="." instance=ExtResource("5_3tvqv")]
+position = Vector2(40, 180)
+chest_perspective = "Right"
+
+[node name="Chest2" parent="." instance=ExtResource("5_3tvqv")]
+position = Vector2(212, 80)
+
+[node name="Chest3" parent="." instance=ExtResource("5_3tvqv")]
+position = Vector2(347, 181)
+chest_perspective = "Left"
