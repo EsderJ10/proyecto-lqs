@@ -235,7 +235,3 @@ func _on_dash_cooldown_timer_timeout() -> void:
 func _on_hitbox_attack_body_entered(body: Node2D) -> void:
 	if body.has_method("take_damage"):
 		body.take_damage(attack_damage)
-
-# Function for enemy detection
-func player() -> void:
-	pass
