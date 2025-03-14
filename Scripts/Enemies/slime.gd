@@ -1,12 +1,16 @@
 extends CharacterBody2D
+class_name Slime
 
 # Properties
+@export_group("Movement")
 @export var speed: int = 157
+@export var max_speed: int = 211
+@export var follow_smoothing: float = 5.0
+
+@export_group("Combat")
 @export var health_points: int = 5
 @export var knockback_force: float = 200.0
 @export var stun_time: float = 0.2
-@export var follow_smoothing: float = 5.0
-@export var max_speed: int = 211
 
 # Nodes references
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -14,30 +18,34 @@ extends CharacterBody2D
 @onready var collision_shape: CollisionShape2D = $DetectionArea/CollisionShape2D
 @onready var stun_timer: Timer = $StunTimer
 
+# State Machine
+enum SlimeState { IDLE, CHASING, STUNNED, DEAD }
+
 # State variables
-var is_dead: bool = false
-var player_in_area: bool = false
-var player: Node2D = null
-var is_stunned: bool = false
+var current_state: SlimeState = SlimeState.IDLE
+var player: Player = null
 var target_velocity: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
-	is_dead = false
 	stun_timer.wait_time = stun_time
 
 func _physics_process(delta: float) -> void:
-	if is_dead or is_stunned:
-		# Apply the friction when stunned
-		if is_stunned:
+	match current_state:
+		SlimeState.DEAD:
+			return
+		SlimeState.STUNNED:
+			# Apply friction when is stunned
 			velocity = velocity.lerp(Vector2.ZERO, 0.1)
 			move_and_slide()
-		return
-	
-	if player_in_area and player:
-		chase_player(delta)
-	else:
-		# Slow down when not chasing the player
-		velocity = velocity.lerp(Vector2.ZERO, 0.2)
+			return
+		SlimeState.CHASING:
+			if player:
+				chase_player(delta)
+			else:
+				transition_to_state(SlimeState.IDLE)
+		SlimeState.IDLE:
+			# Slow down if not chasing
+			velocity = velocity.lerp(Vector2.ZERO, 0.2)
 	
 	move_and_slide()
 	update_animation()
@@ -46,38 +54,44 @@ func chase_player(delta: float) -> void:
 	var direction_to_player = (player.position - position).normalized()
 	target_velocity = direction_to_player * speed
 	
-	# Smooth interpolation of current velocity toward target velocity
 	velocity = velocity.lerp(target_velocity, delta * follow_smoothing)
 	
-	# Apply max speed
+	# Cap to max speed
 	if velocity.length() > max_speed:
 		velocity = velocity.normalized() * max_speed
 
 func update_animation() -> void:
-	if is_dead or is_stunned:
+	if current_state == SlimeState.DEAD:
+		#animated_sprite.play("death") TODO: Death Animation
 		return
 	
-	# Determine the animation direction based on movement
-	animated_sprite.play(get_direction_name(velocity))
+	# Determine animation based on movement direction
+	if velocity.length() > 10:  
+		animated_sprite.play(get_direction_name(velocity))
+	#else:
+		#animated_sprite.play("idle") TODO: Idle Animation
 
 func get_direction_name(direction: Vector2) -> String:
-	# Get the cardinal direction name based on vector2
+	# Get cardinal direction name based on vector2
 	if abs(direction.x) > abs(direction.y):
 		return "right" if direction.x > 0 else "left"
 	else:
 		return "down" if direction.y > 0 else "up"
 
 func _on_detection_area_body_entered(body: Node2D) -> void:
-	if body.has_method("player"):
-		player_in_area = true
-		player = body
+	if body is Player and current_state != SlimeState.DEAD:
+		player = body as Player
+		transition_to_state(SlimeState.CHASING)
 
 func _on_detection_area_body_exited(body: Node2D) -> void:
-	if body.has_method("player"):
-		player_in_area = false
+	if body is Player and body == player:
 		player = null
+		transition_to_state(SlimeState.IDLE)
 
 func take_damage(damage_received: int) -> void:
+	if current_state == SlimeState.DEAD:
+		return
+		
 	health_points -= damage_received
 	
 	if health_points <= 0:
@@ -85,27 +99,36 @@ func take_damage(damage_received: int) -> void:
 		return
 	
 	apply_knockback()
-	apply_stun()
+	transition_to_state(SlimeState.STUNNED)
+	stun_timer.start()
 
 func apply_knockback() -> void:
 	if player:
 		var knockback_direction = (position - player.position).normalized()
 		velocity = knockback_direction * knockback_force
 
-func apply_stun() -> void:
-	is_stunned = true
-	animated_sprite.modulate = Color(1, 0.5, 0.5)  # TODO: Change for VFX
-	stun_timer.start()
-
 func _on_stun_timer_timeout() -> void:
-	is_stunned = false
-	animated_sprite.modulate = Color(1, 1, 1)  # TODO: Change when VFX added
+	if current_state == SlimeState.STUNNED:
+		transition_to_state(SlimeState.CHASING if player else SlimeState.IDLE)
 
 func die() -> void:
-	is_dead = true
+	transition_to_state(SlimeState.DEAD)
 	collision_shape.set_deferred("disabled", true)
 	
-	# TODO: Change for Fade out effect with VFX, not manually
+	# Create tween for fade out effect
 	var tween = create_tween()
 	tween.tween_property(animated_sprite, "modulate", Color(1, 1, 1, 0), 0.5)
 	tween.tween_callback(queue_free)
+
+func transition_to_state(new_state: SlimeState) -> void:
+	match current_state:
+		SlimeState.STUNNED:
+			animated_sprite.modulate = Color(1, 1, 1) # TODO: Change for VFX?
+	
+	# Update the state
+	current_state = new_state
+	
+	# New State
+	match new_state:
+		SlimeState.STUNNED:
+			animated_sprite.modulate = Color(1, 0.5, 0.5)  # TODO: Change for VFX?
