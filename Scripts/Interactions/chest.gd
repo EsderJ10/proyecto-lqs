@@ -1,7 +1,17 @@
 extends StaticBody2D
+class_name Chest
+
+# Signals
+signal chest_opened(chest_position)
+
+enum ChestPerspective {
+	FRONT,
+	LEFT,
+	RIGHT
+}
 
 # Parameters
-@export_enum("Front", "Left", "Right") var chest_perspective: String = "Front"
+@export var chest_perspective: ChestPerspective = ChestPerspective.FRONT
 @export var interaction_distance: float = 53.0
 
 # Nodes references
@@ -15,70 +25,82 @@ var is_open: bool = false
 var player_in_range: bool = false
 var player: Node2D = null
 
-# Dimensions for different perspectives
-const FRONT_COLLISION_SIZE: Vector2 = Vector2(58, 33)
-const SIDE_COLLISION_SIZE: Vector2 = Vector2(31, 54)
-const FRONT_INTERACTION_SIZE: Vector2 = Vector2(65, 35)
-const SIDE_INTERACTION_SIZE: Vector2 = Vector2(35, 65)
+# Constants for collision and interaction shapes
+const DIMENSIONS = {
+	ChestPerspective.FRONT: {
+		"collision": Vector2(58, 33),
+		"interaction": Vector2(65, 35),
+		"offset": Vector2.ZERO
+	},
+	ChestPerspective.LEFT: {
+		"collision": Vector2(31, 54),
+		"interaction": Vector2(35, 65),
+		"offset": Vector2(-4, 0)
+	},
+	ChestPerspective.RIGHT: {
+		"collision": Vector2(31, 54),
+		"interaction": Vector2(35, 65),
+		"offset": Vector2(4, 0)
+	}
+}
 
 func _ready() -> void:
-	is_open = false
-	# Create unique shape resources for this instance
 	create_unique_shapes()
-	# Apply the correct perspective
-	update_chest_appearance()
-
-func create_unique_shapes() -> void:
-	# Create a new unique RectangleShape2D for collision
-	var new_collision_shape = RectangleShape2D.new()
-	collision_shape.shape = new_collision_shape
-	
-	# Create a new unique RectangleShape2D for interaction
-	var new_interaction_shape = RectangleShape2D.new()
-	interaction_shape.shape = new_interaction_shape
+	initialize_chest()
 
 func _process(delta: float) -> void:
-	if player_in_range and player and Input.is_action_just_pressed("open_chest"):
+	if player_in_range and player and Input.is_action_just_pressed("open_chest") and not is_open:
 		open_chest()
 
+func create_unique_shapes() -> void:
+	# Prevent shared resources from chests
+	collision_shape.shape = RectangleShape2D.new()
+	interaction_shape.shape = RectangleShape2D.new()
+
+func initialize_chest() -> void:
+	is_open = false
+	update_chest_appearance()
+
 func update_chest_appearance() -> void:
-	var state = "closed"
-	if is_open:
-		state = "open"
+	var state = "closed" if not is_open else "open"
+	var animation_name = _get_perspective_name() + "_" + state
 	
-	var animation_name = chest_perspective.to_lower() + "_" + state
-	animated_sprite.play(animation_name)
+	if animated_sprite.sprite_frames.has_animation(animation_name):
+		animated_sprite.play(animation_name)
+	else:
+		push_warning("CHEST: Missing animation '%s'" % animation_name)
+		# Fallback to a default animation if available
+		if animated_sprite.sprite_frames.has_animation("front_closed"):
+			animated_sprite.play("front_closed")
 	
 	update_shapes()
 
+func _get_perspective_name() -> String:
+	match chest_perspective:
+		ChestPerspective.FRONT:
+			return "front"
+		ChestPerspective.LEFT:
+			return "left"
+		ChestPerspective.RIGHT:
+			return "right"
+		_:
+			return "front" # Default fallback
+
 func update_shapes() -> void:
 	var collision_rect_shape = collision_shape.shape as RectangleShape2D
-	
-	if collision_rect_shape:
-		match chest_perspective:
-			"Front":
-				collision_rect_shape.size = FRONT_COLLISION_SIZE
-				collision_shape.position = Vector2(0, 0)
-			"Left":
-				collision_rect_shape.size = SIDE_COLLISION_SIZE
-				collision_shape.position = Vector2(-4, 0)
-			"Right":
-				collision_rect_shape.size = SIDE_COLLISION_SIZE
-				collision_shape.position = Vector2(4, 0)
-	
 	var interaction_rect_shape = interaction_shape.shape as RectangleShape2D
 	
-	if interaction_rect_shape:
-		match chest_perspective:
-			"Front":
-				interaction_rect_shape.size = FRONT_INTERACTION_SIZE
-				interaction_shape.position = Vector2(0, 0)
-			"Left":
-				interaction_rect_shape.size = SIDE_INTERACTION_SIZE
-				interaction_shape.position = Vector2(-4, 0)
-			"Right":
-				interaction_rect_shape.size = SIDE_INTERACTION_SIZE
-				interaction_shape.position = Vector2(4, 0)
+	if not collision_rect_shape or not interaction_rect_shape:
+		push_error("CHEST: Shape resources not properly created")
+		return
+	
+	var settings = DIMENSIONS.get(chest_perspective, DIMENSIONS[ChestPerspective.FRONT])
+	
+	collision_rect_shape.size = settings["collision"]
+	collision_shape.position = settings["offset"]
+	
+	interaction_rect_shape.size = settings["interaction"]
+	interaction_shape.position = settings["offset"]
 
 func open_chest() -> void:
 	if is_open:
@@ -86,25 +108,26 @@ func open_chest() -> void:
 	
 	is_open = true
 	update_chest_appearance()
+	play_open_animation()
 	
-	# TODO: Implement sound effect
-	
-	# Animation
-	var tween = create_tween()
+	# Emit signal with chest position
+	chest_opened.emit(global_position)
+
+func play_open_animation() -> void:
+	var tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_ELASTIC)
 	tween.tween_property(animated_sprite, "scale", Vector2(1.1, 1.1), 0.1)
 	tween.tween_property(animated_sprite, "scale", Vector2(1.0, 1.0), 0.1)
 
-func _on_interaction_area_body_entered(body: Node2D) -> void:
-	if body.has_method("player"):
+func _on_interaction_area_body_entered(body: Node2D) -> void: 
+	if body is Player:
 		player_in_range = true
 		player = body
 
 func _on_interaction_area_body_exited(body: Node2D) -> void:
-	if body.has_method("player"):
+	if body is Player:
 		player_in_range = false
 		player = null
 
-func set_perspective(perspective: String) -> void:
-	if perspective in ["Front", "Left", "Right"]:
-		chest_perspective = perspective
-		update_chest_appearance()
+func set_perspective(perspective: ChestPerspective) -> void:
+	chest_perspective = perspective
+	update_chest_appearance()
