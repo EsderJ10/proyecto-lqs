@@ -55,19 +55,22 @@ animations = [{
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_547iw"]
+radius = 18.0
+height = 60.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_cvnsp"]
 size = Vector2(36, 49)
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_avkim")
+metadata/_edit_group_ = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_tldux")
 animation = &"down"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(-1, 1)
+position = Vector2(0, 1)
 shape = SubResource("CapsuleShape2D_547iw")
 
 [node name="HitboxAttack" type="Area2D" parent="."]
@@ -85,8 +88,11 @@ debug_color = Color(0.780821, 0.436582, 5.77569e-07, 0.42)
 
 [node name="DashCooldownTimer" type="Timer" parent="."]
 
+[node name="InvulnerabilityTimer" type="Timer" parent="."]
+
 [connection signal="body_entered" from="HitboxAttack" to="." method="_on_hitbox_attack_body_entered"]
 [connection signal="timeout" from="AttackCooldownTimer" to="." method="_on_attack_cooldown_timer_timeout"]
 [connection signal="timeout" from="AttackTimer" to="." method="_on_attack_timer_timeout"]
 [connection signal="timeout" from="DashTimer" to="." method="_on_dash_timer_timeout"]
 [connection signal="timeout" from="DashCooldownTimer" to="." method="_on_dash_cooldown_timer_timeout"]
+[connection signal="timeout" from="InvulnerabilityTimer" to="." method="_on_invulnerability_timer_timeout"]
