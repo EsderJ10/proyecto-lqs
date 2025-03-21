@@ -23,7 +23,7 @@ enum ChestPerspective {
 # State variables
 var is_open: bool = false
 var player_in_range: bool = false
-var player: Node2D = null
+var player: Player = null
 
 # Constants for collision and interaction shapes
 const DIMENSIONS = {
