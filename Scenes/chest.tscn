@@ -1,6 +1,6 @@
 [gd_scene load_steps=12 format=3 uid="uid://ddamgcjpa8oka"]
 
-[ext_resource type="Script" uid="uid://b7ses8aewqn0o" path="res://Scripts/Interactions/chest.gd" id="1_cjfl1"]
+[ext_resource type="Script" uid="uid://b7ses8aewqn0o" path="res://Scripts/Assets/chest.gd" id="1_cjfl1"]
 [ext_resource type="Texture2D" uid="uid://bj1ddvbyjxqho" path="res://Assets/Tilesets/Decorations/wooden_chest.png" id="2_bagqn"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pmguq"]

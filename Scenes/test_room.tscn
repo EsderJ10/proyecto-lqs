@@ -985,11 +985,11 @@ parameters/looping = true
 
 [node name="Chest" parent="." instance=ExtResource("5_3tvqv")]
 position = Vector2(40, 180)
-chest_perspective = "Right"
+chest_perspective = 2
 
 [node name="Chest2" parent="." instance=ExtResource("5_3tvqv")]
 position = Vector2(212, 80)
 
 [node name="Chest3" parent="." instance=ExtResource("5_3tvqv")]
 position = Vector2(347, 181)
-chest_perspective = "Left"
+chest_perspective = 1

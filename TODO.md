@@ -2,16 +2,43 @@
 
 ## HIGH
 
-- [x] Modificar el sprite del personaje.
-- [x] Modificar el tileset.
+### ANIMACIONES / VISUAL
 - [ ] Modificar la importación de los sprites para evitar/reducir el pixelado.
-- [x] Implementar movimiento del Slime (perseguir al personaje/jugador)
-- [ ] Implementar cofres e interactividad.
-- [ ] Implementar mecánica de ataque del personaje/jugador
+- [ ] Crear animación de ATTACKING(player/slime?).
+- [ ] Crear animación de DASHING(player).
+- [ ] Crear animación de IDLE (player/slime).
+- [ ] Crear animación de DEATH (player?/slime)
+
+### CÓDIGO
+- [ ] Implementar signal para slime.
+- [ ] Implementar take_damage y die? en player
+
+
+### SFX / SONIDOS
+- [ ] Buscar/crear hit_sound
+- [ ] Buscar/crear death_sound
+
+
+
 ## MEDIUM
 
+### ANIMACIONES / VISUAL
+
+
+### CÓDIGO
 - [ ] Generación procedural de mazmorra.
+
+
+### SFX / SONIDOS
+
 
 ## LOW
 
-- [x]  Añadir nodo para reproducir música.
+### ANIMACIONES / VISUAL
+- [ ] Implementar VFX y SFX para cofres y slime.
+
+
+### CÓDIGO
+
+
+### SFX / SONIDOS
