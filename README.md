@@ -2,7 +2,45 @@
 
 - Godot Engine &rarr; 4.4
 
-## Bugs Conocidos
+# TO-DO
 
-- [ ] El jugador y el slime abandonan la pantalla cuando este último está empujando al primero.
+## HIGH
 
+### ANIMACIONES / VISUAL
+- [ ] Modificar la importación de los sprites para evitar/reducir el pixelado.
+- [ ] Crear animación de ATTACKING(player/slime?).
+- [ ] Crear animación de DASHING(player).
+- [ ] Crear animación de IDLE (player/slime).
+- [ ] Crear animación de DEATH (player?/slime)
+
+### CÓDIGO
+
+
+### SFX / SONIDOS
+- [ ] Buscar/crear hit_sound
+- [ ] Buscar/crear death_sound
+
+
+
+## MEDIUM
+
+### ANIMACIONES / VISUAL
+
+
+### CÓDIGO
+- [ ] Generación procedural de mazmorra.
+
+
+### SFX / SONIDOS
+
+
+## LOW
+
+### ANIMACIONES / VISUAL
+- [ ] Implementar VFX y SFX para cofres y slime.
+
+
+### CÓDIGO
+
+
+### SFX / SONIDOS
