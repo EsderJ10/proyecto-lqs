@@ -1,7 +1,8 @@
-[gd_scene load_steps=10 format=3 uid="uid://b8tpceabf0tgk"]
+[gd_scene load_steps=11 format=3 uid="uid://b8tpceabf0tgk"]
 
 [ext_resource type="Script" uid="uid://bxebkx77nuvls" path="res://Scripts/Character/player.gd" id="1_avkim"]
 [ext_resource type="Texture2D" uid="uid://cankgk3ve1b60" path="res://Assets/Sprites/player_sprite.png" id="2_jfwtd"]
+[ext_resource type="Script" uid="uid://dr3j3r0tk7hwa" path="res://Scripts/Character/camera_2d.gd" id="3_6t5aa"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_gtob1"]
 atlas = ExtResource("2_jfwtd")
@@ -83,6 +84,7 @@ debug_color = Color(0.780821, 0.436582, 5.77569e-07, 0.42)
 [node name="Camera2D" type="Camera2D" parent="."]
 process_callback = 0
 position_smoothing_enabled = true
+script = ExtResource("3_6t5aa")
 
 [node name="AttackCooldownTimer" type="Timer" parent="."]
 
