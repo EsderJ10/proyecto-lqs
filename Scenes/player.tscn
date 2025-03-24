@@ -80,6 +80,10 @@ position = Vector2(0, 38)
 shape = SubResource("RectangleShape2D_cvnsp")
 debug_color = Color(0.780821, 0.436582, 5.77569e-07, 0.42)
 
+[node name="Camera2D" type="Camera2D" parent="."]
+process_callback = 0
+position_smoothing_enabled = true
+
 [node name="AttackCooldownTimer" type="Timer" parent="."]
 
 [node name="AttackTimer" type="Timer" parent="."]
