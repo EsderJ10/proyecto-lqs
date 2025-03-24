@@ -16,6 +16,7 @@
 ### CÓDIGO
 - [ ] Crear clase padre Enemy.
 - [ ] Implementar Camera2D en Player.
+- [ ] Implementar animación de puerta.
 
 ### SFX / SONIDOS
 - [ ] Buscar/crear hit_sound
