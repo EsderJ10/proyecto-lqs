@@ -14,7 +14,8 @@
 - [ ] Crear animación de DEATH (player?/slime)
 
 ### CÓDIGO
-
+- [ ] Crear clase padre Enemy.
+- [ ] Implementar Camera2D en Player.
 
 ### SFX / SONIDOS
 - [ ] Buscar/crear hit_sound
@@ -28,7 +29,8 @@
 
 
 ### CÓDIGO
-- [ ] Generación procedural de mazmorra.
+- [ ] Implementar inventario.
+- [ ] Implementar sistemas de loot.
 
 
 ### SFX / SONIDOS
@@ -41,6 +43,6 @@
 
 
 ### CÓDIGO
-
+- [ ] Generación procedural de mazmorra.
 
 ### SFX / SONIDOS
