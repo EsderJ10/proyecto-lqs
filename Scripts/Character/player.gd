@@ -36,6 +36,7 @@ signal player_died()
 @onready var dash_timer: Timer = $DashTimer
 @onready var dash_cooldown_timer: Timer = $DashCooldownTimer
 @onready var invulnerability_timer: Timer = $InvulnerabilityTimer
+@onready var camera: Camera2D = $Camera2D
 
 # State Machine
 enum State {IDLE, MOVING, ATTACKING, DASHING, HURT, DEAD}
@@ -299,6 +300,7 @@ func take_damage(damage: int, source_position: Vector2 = Vector2.ZERO) -> void:
 		change_state(State.DEAD)
 	else:
 		# Apply hit reaction
+		camera.add_trauma(0.5)
 		change_state(State.HURT)
 		set_invulnerable(true)
 		
