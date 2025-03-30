@@ -1,5 +1,6 @@
-[gd_scene load_steps=16 format=3 uid="uid://dmekitbbixaqs"]
+[gd_scene load_steps=17 format=3 uid="uid://dmekitbbixaqs"]
 
+[ext_resource type="Script" uid="uid://chjo6xf0wmc58" path="res://Scripts/Assets/door.gd" id="1_p0e35"]
 [ext_resource type="Texture2D" uid="uid://bwa47mokkfexx" path="res://Assets/Tilesets/open_door_frames.png" id="1_w6aom"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_p0e35"]
@@ -113,7 +114,8 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_d8qbc"]
 size = Vector2(63, 63)
 
-[node name="Door" type="Area2D"]
+[node name="Door" type="StaticBody2D"]
+script = ExtResource("1_p0e35")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(2, 0)
@@ -124,3 +126,7 @@ frame_progress = 0.472116
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(2.5, -0.5)
 shape = SubResource("RectangleShape2D_d8qbc")
+
+[node name="OpenTimer" type="Timer" parent="."]
+
+[connection signal="timeout" from="OpenTimer" to="." method="_on_open_timer_timeout"]

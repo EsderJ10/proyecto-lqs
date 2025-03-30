@@ -41,7 +41,8 @@ func _ready() -> void:
 	# Configure timers
 	stun_timer.wait_time = stun_time
 	attack_cooldown_timer.wait_time = attack_cooldown
-
+	
+	add_to_group("slimes")
 func _physics_process(delta: float) -> void:
 	match current_state:
 		SlimeState.DEAD:
