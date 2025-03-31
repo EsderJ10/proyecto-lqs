@@ -997,3 +997,9 @@ chest_perspective = 1
 
 [node name="Door" parent="." instance=ExtResource("6_548gw")]
 position = Vector2(601, 32)
+
+[node name="Slime2" parent="." instance=ExtResource("4_ql2hy")]
+position = Vector2(119, 522)
+
+[node name="Slime3" parent="." instance=ExtResource("4_ql2hy")]
+position = Vector2(516, 589)
