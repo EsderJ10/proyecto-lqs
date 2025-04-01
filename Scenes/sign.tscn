@@ -1,0 +1,74 @@
+[gd_scene load_steps=10 format=3 uid="uid://do8sgxjcv4qrp"]
+
+[ext_resource type="Texture2D" uid="uid://cijdft78d3krn" path="res://Assets/Tilesets/Decorations/sign.png" id="1_fmf1u"]
+[ext_resource type="Script" uid="uid://dp01dmplvwu5p" path="res://Scripts/Assets/sign.gd" id="1_m6mpx"]
+[ext_resource type="PackedScene" uid="uid://b8tpceabf0tgk" path="res://Scenes/player.tscn" id="2_hqvqy"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m6mpx"]
+atlas = ExtResource("1_fmf1u")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hqvqy"]
+atlas = ExtResource("1_fmf1u")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6c32n"]
+atlas = ExtResource("1_fmf1u")
+region = Rect2(0, 64, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_v8ien"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_m6mpx")
+}],
+"loop": true,
+"name": &"front",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hqvqy")
+}],
+"loop": true,
+"name": &"left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6c32n")
+}],
+"loop": true,
+"name": &"right",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_u6bny"]
+size = Vector2(28, 29)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hqvqy"]
+size = Vector2(28, 29)
+
+[node name="Sign" type="StaticBody2D"]
+script = ExtResource("1_m6mpx")
+
+[node name="Player" parent="." instance=ExtResource("2_hqvqy")]
+position = Vector2(120, 17)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_v8ien")
+animation = &"front"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 0.5)
+shape = SubResource("RectangleShape2D_u6bny")
+
+[node name="InteractionArea" type="Area2D" parent="."]
+
+[node name="InteractionShape" type="CollisionShape2D" parent="InteractionArea"]
+position = Vector2(0, 0.5)
+shape = SubResource("RectangleShape2D_hqvqy")
+debug_color = Color(0, 0.644994, 0.26955, 0.42)
+
+[connection signal="body_entered" from="InteractionArea" to="." method="_on_interaction_area_body_entered"]
+[connection signal="body_exited" from="InteractionArea" to="." method="_on_interaction_area_body_exited"]
