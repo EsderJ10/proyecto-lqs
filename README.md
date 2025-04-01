@@ -14,11 +14,10 @@
 - [ ] Crear animación de DEATH (player?/slime)
 
 ### CÓDIGO
-- [ ] Crear clase padre Enemy.
-- [ ] Implementar Camera2D en Player.
-- [ ] Implementar animación de puerta.
+- [ ] Implementar carteles.
 
-### SFX / SONIDOS
+
+### SFX / SONIDOS / MÚSICA
 - [ ] Buscar/crear hit_sound
 - [ ] Buscar/crear death_sound
 
