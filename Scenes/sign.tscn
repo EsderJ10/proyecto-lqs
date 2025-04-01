@@ -1,8 +1,7 @@
-[gd_scene load_steps=10 format=3 uid="uid://do8sgxjcv4qrp"]
+[gd_scene load_steps=9 format=3 uid="uid://do8sgxjcv4qrp"]
 
 [ext_resource type="Texture2D" uid="uid://cijdft78d3krn" path="res://Assets/Tilesets/Decorations/sign.png" id="1_fmf1u"]
 [ext_resource type="Script" uid="uid://dp01dmplvwu5p" path="res://Scripts/Assets/sign.gd" id="1_m6mpx"]
-[ext_resource type="PackedScene" uid="uid://b8tpceabf0tgk" path="res://Scenes/player.tscn" id="2_hqvqy"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_m6mpx"]
 atlas = ExtResource("1_fmf1u")
@@ -51,9 +50,6 @@ size = Vector2(28, 29)
 
 [node name="Sign" type="StaticBody2D"]
 script = ExtResource("1_m6mpx")
-
-[node name="Player" parent="." instance=ExtResource("2_hqvqy")]
-position = Vector2(120, 17)
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_v8ien")
