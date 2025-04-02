@@ -19,11 +19,8 @@ enum SignPerspective {
 @onready var interaction_shape: CollisionShape2D = $InteractionArea/InteractionShape
 
 # UI Elements
-var dialog_container: Control
-var dialog_box: Panel
-var label: Label
+var dialog_instance: Control = null
 var is_dialog_open: bool = false
-var font_color = Color(0.4, 0.25, 0.1, 1.0)  
 
 # State variables
 var player_in_range: bool = false
@@ -51,8 +48,6 @@ const DIMENSIONS = {
 func _ready() -> void:
 	create_unique_shapes()
 	initialize_sign()
-	setup_dialog_ui()
-	
 
 func _process(_delta: float) -> void:
 	if player_in_range and player:
@@ -109,117 +104,59 @@ func update_shapes() -> void:
 	interaction_rect_shape.size = settings["interaction"]
 	interaction_shape.position = settings["offset"]
 
-func setup_dialog_ui() -> void:
-	# Create a container for all dialog elements
-	dialog_container = Control.new()
-	dialog_container.visible = false
-	dialog_container.size = Vector2(get_viewport_rect().size.x, 100)
-	dialog_container.position = Vector2(0, get_viewport_rect().size.y - 100)
-	dialog_container.name = "DialogContainer"
-	
-	# Create dialog box with papyrus style
-	dialog_box = Panel.new()
-	dialog_box.size = Vector2(get_viewport_rect().size.x - 40, 80)  # Slightly smaller than container
-	dialog_box.position = Vector2(20, 10)  # Centered in container
-	
-	# Create papyrus style for the panel
-	var papyrus_style = StyleBoxFlat.new()
-	papyrus_style.bg_color = Color(0.95, 0.9, 0.7, 1.0)  # Sandy papyrus color
-	papyrus_style.border_width_left = 5
-	papyrus_style.border_width_top = 5
-	papyrus_style.border_width_right = 5
-	papyrus_style.border_width_bottom = 5
-	papyrus_style.border_color = Color(0.85, 0.75, 0.55, 1.0)  # Darker edge
-	papyrus_style.corner_radius_top_left = 8
-	papyrus_style.corner_radius_top_right = 8
-	papyrus_style.corner_radius_bottom_left = 8
-	papyrus_style.corner_radius_bottom_right = 8
-	papyrus_style.shadow_color = Color(0.0, 0.0, 0.0, 0.3)
-	papyrus_style.shadow_size = 5
-	papyrus_style.shadow_offset = Vector2(3, 3)
-	
-	dialog_box.add_theme_stylebox_override("panel", papyrus_style)
-	
-	# Create text label
-	label = Label.new()
-	label.text = sign_text
-	label.position = Vector2(15, 15)
-	label.size = Vector2(dialog_box.size.x - 30, dialog_box.size.y - 30)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	
-	label.add_theme_color_override("font_color", font_color)
-	
-	# Add label to dialog box
-	dialog_box.add_child(label)
-	
-	# Add dialog box to container
-	dialog_container.add_child(dialog_box)
-	add_scroll_decorations(dialog_container, dialog_box)
-	
-	# Add container to scene tree
-	var canvas_layer = CanvasLayer.new()
-	canvas_layer.layer = 10  # Higher layer to display above other elements
-	get_tree().root.call_deferred("add_child", canvas_layer)
-	canvas_layer.add_child(dialog_container)
-
-func add_scroll_decorations(container: Control, dialog: Panel) -> void:
-	# Add left scroll cap
-	var left_cap = Panel.new()
-	left_cap.size = Vector2(15, dialog.size.y - 20)
-	left_cap.position = Vector2(dialog.position.x - 5, dialog.position.y + 10)
-	
-	var left_style = StyleBoxFlat.new()
-	left_style.bg_color = Color(0.85, 0.75, 0.55, 1.0)
-	left_style.corner_radius_top_left = 10
-	left_style.corner_radius_bottom_left = 10
-	left_cap.add_theme_stylebox_override("panel", left_style)
-	
-	# Add right scroll cap
-	var right_cap = Panel.new()
-	right_cap.size = Vector2(15, dialog.size.y - 20)
-	right_cap.position = Vector2(dialog.position.x + dialog.size.x - 10, dialog.position.y + 10)
-	
-	var right_style = StyleBoxFlat.new()
-	right_style.bg_color = Color(0.85, 0.75, 0.55, 1.0)  # Darker brown
-	right_style.corner_radius_top_right = 10
-	right_style.corner_radius_bottom_right = 10
-	right_cap.add_theme_stylebox_override("panel", right_style)
-	
-	container.add_child(left_cap)
-	container.add_child(right_cap)
-	
-	# Ensure caps are behind the main dialog
-	dialog.z_index = 1
-	left_cap.z_index = 0
-	right_cap.z_index = 0
+func create_dialog_instance() -> void:
+	# Instance the DialogScroll scene
+	var dialog_scroll_scene = load("res://Scenes/UI/dialog_scroll.tscn")
+	if dialog_scroll_scene:
+		dialog_instance = dialog_scroll_scene.instantiate()
+		var canvas_layer = CanvasLayer.new()
+		canvas_layer.layer = 10  # Higher layer to display above other elements
+		canvas_layer.name = "DialogLayer"
+		get_tree().root.add_child(canvas_layer)
+		canvas_layer.add_child(dialog_instance)
+		
+		# Set the dialog text
+		if dialog_instance.has_node("DialogBox/Label"):
+			dialog_instance.get_node("DialogBox/Label").text = sign_text
+		
+		# Initially hide the dialog
+		dialog_instance.visible = false
+	else:
+		push_error("* SIGN: Failed to load DialogScroll scene")
 
 func show_dialog() -> void:
-	dialog_container.visible = true
-	is_dialog_open = true
+	if not dialog_instance:
+		create_dialog_instance()
 	
-	var tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-	dialog_container.position.y = get_viewport_rect().size.y  # Start from below screen
-	tween.tween_property(dialog_container, "position:y", get_viewport_rect().size.y - 100, 0.3)
-	
-	# Add a small unroll animation
-	dialog_box.scale = Vector2(1.0, 0.1)
-	var scale_tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-	scale_tween.tween_property(dialog_box, "scale", Vector2(1.0, 1.0), 0.25)
+	if dialog_instance:
+		dialog_instance.visible = true
+		is_dialog_open = true
+		
+		# Animate entrance from bottom
+		var tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		dialog_instance.position.y = get_viewport_rect().size.y  # Start from below screen
+		tween.tween_property(dialog_instance, "position:y", get_viewport_rect().size.y - 100, 0.3)
+		
+		# Add a small unroll animation for the dialog box
+		var dialog_box = dialog_instance.get_node("DialogBox")
+		dialog_box.scale = Vector2(1.0, 0.1)
+		var scale_tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		scale_tween.tween_property(dialog_box, "scale", Vector2(1.0, 1.0), 0.25)
 
 func hide_dialog() -> void:
-	var tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
-	tween.tween_property(dialog_container, "position:y", get_viewport_rect().size.y, 0.2)
-	
-	# Add a roll up animation
-	var scale_tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
-	scale_tween.tween_property(dialog_box, "scale", Vector2(1.0, 0.1), 0.2)
-	
-	tween.tween_callback(func(): 
-		dialog_container.visible = false
-		is_dialog_open = false
-	)
+	if dialog_instance:
+		var tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_BACK)
+		tween.tween_property(dialog_instance, "position:y", get_viewport_rect().size.y, 0.2)
+		
+		# Add a roll up animation
+		var dialog_box = dialog_instance.get_node("DialogBox")
+		var scale_tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
+		scale_tween.tween_property(dialog_box, "scale", Vector2(1.0, 0.1), 0.2)
+		
+		tween.tween_callback(func(): 
+			dialog_instance.visible = false
+			is_dialog_open = false
+		)
 
 func _on_interaction_area_body_entered(body: Node2D) -> void: 
 	if body is Player:
