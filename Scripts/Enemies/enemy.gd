@@ -86,21 +86,29 @@ func _physics_process(delta: float) -> void:
 			velocity = velocity.lerp(Vector2.ZERO, 0.1)
 		EnemyState.CHASING:
 			if player:
-				# Cache player information
 				update_player_data()
-				
-				# Process chase behavior
 				chase_player(delta)
 				
+				# Add separation force when too close
+				if player_distance < 40.0:
+					var separation = (global_position - player.global_position).normalized() * 25.0
+					velocity += separation
+
 				# Try to attack if close enough and can attack
 				if can_attack and player_distance <= attack_range:
 					attack_player()
 			else:
 				transition_to_state(EnemyState.IDLE)
 		EnemyState.IDLE:
-			# Slow down if not chasing
+		# Slow down if not chasing
 			velocity = velocity.lerp(Vector2.ZERO, 0.2)
-	
+
+# Handle collision with better separation
+	var collision = move_and_collide(velocity * delta, true)
+	if collision and collision.get_collider() is Player:
+		global_position += collision.get_normal() * collision.get_depth()
+		velocity = velocity.bounce(collision.get_normal()) * 0.6
+
 	move_and_slide()
 	update_animation()
 
@@ -115,17 +123,22 @@ func chase_player(delta: float) -> void:
 	if not player:
 		transition_to_state(EnemyState.IDLE)
 		return
-	
+
 	# Use cached direction
 	target_velocity = direction_to_player * speed
-	
+
+	# Add repulsion vector when very close to player
+	if player_distance < 30.0:  # Minimum desired distance
+		# Add force away from player
+		target_velocity = target_velocity.lerp(-direction_to_player * speed, 0.5)
+
 	# Improved smoothing with delta
 	velocity = velocity.lerp(target_velocity, delta * follow_smoothing)
-	
+
 	# Cap to max speed using squared length for efficiency
 	if velocity.length_squared() > speed_squared:
 		velocity = velocity.normalized() * max_speed
-
+	
 # Method for animation updates
 func update_animation() -> void:
 	push_error("Function 'update_animation' must be implemented by the child class")
