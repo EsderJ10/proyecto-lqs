@@ -1,0 +1,73 @@
+[gd_scene load_steps=3 format=3 uid="uid://b8n0f3wneblhb"]
+
+[ext_resource type="Script" uid="uid://54of4ge88j14" path="res://Scripts/UI/dialog_scroll.gd" id="1_wnvoi"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p0g4a"]
+
+[node name="DialogScroll" type="Control"]
+layout_mode = 3
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("1_wnvoi")
+
+[node name="DialogBox" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 20.0
+offset_top = -40.0
+offset_right = -20.0
+offset_bottom = 40.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_p0g4a")
+
+[node name="Label" type="Label" parent="DialogBox"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 15.0
+offset_top = 15.0
+offset_right = -15.0
+offset_bottom = -15.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.4, 0.25, 0.1, 1)
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="LeftCap" type="Panel" parent="."]
+z_index = -1
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 15.0
+offset_top = -30.0
+offset_right = 30.0
+offset_bottom = 30.0
+grow_vertical = 2
+
+[node name="RightCap" type="Panel" parent="."]
+z_index = -1
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -30.0
+offset_top = -30.0
+offset_right = -15.0
+offset_bottom = 30.0
+grow_horizontal = 0
+grow_vertical = 2
