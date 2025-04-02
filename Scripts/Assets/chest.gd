@@ -49,7 +49,7 @@ func _ready() -> void:
 	initialize_chest()
 
 func _process(_delta: float) -> void:
-	if player_in_range and player and Input.is_action_just_pressed("open_chest") and not is_open:
+	if player_in_range and player and Input.is_action_just_pressed("interact") and not is_open:
 		open_chest()
 
 func create_unique_shapes() -> void:
