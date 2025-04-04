@@ -14,7 +14,6 @@
 - [ ] Crear animación de DEATH (player?/slime)
 
 ### CÓDIGO
-- [ ] Arreglar clipeo del enemigo con el player
 
 
 ### SFX / SONIDOS / MÚSICA
