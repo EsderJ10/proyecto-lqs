@@ -99,9 +99,3 @@ script = ExtResource("3_6t5aa")
 [node name="HurtTimer" type="Timer" parent="."]
 
 [connection signal="body_entered" from="HitboxAttack" to="." method="_on_hitbox_attack_body_entered"]
-[connection signal="timeout" from="AttackCooldownTimer" to="." method="_on_attack_cooldown_timer_timeout"]
-[connection signal="timeout" from="AttackTimer" to="." method="_on_attack_timer_timeout"]
-[connection signal="timeout" from="DashTimer" to="." method="_on_dash_timer_timeout"]
-[connection signal="timeout" from="DashCooldownTimer" to="." method="_on_dash_cooldown_timer_timeout"]
-[connection signal="timeout" from="InvulnerabilityTimer" to="." method="_on_invulnerability_timer_timeout"]
-[connection signal="timeout" from="HurtTimer" to="." method="_on_hurt_timer_timeout"]
