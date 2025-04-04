@@ -7,10 +7,10 @@ signal player_died()
 
 # Properties
 @export_group("Movement")
-@export var speed: int = 421
+@export var speed: int = 400
 @export var acceleration: float = 0.5
 @export var friction: float = 0.7
-@export var deceleration: float = 1.5  # Added deceleration for stopping
+@export var deceleration: float = 1.5
 
 @export_group("Combat")
 @export var attack_duration: float = 0.3
@@ -18,7 +18,7 @@ signal player_died()
 @export var attack_damage: int = 1
 
 @export_group("Dash")
-@export var dash_speed: int = 1211 
+@export var dash_speed: int = 1200 
 @export var dash_duration: float = 0.3
 @export var dash_cooldown: float = 1.0
 @export var invulnerability_duration: float = 1.0
@@ -28,7 +28,7 @@ signal player_died()
 @export var hit_knockback_force: float = 300.0
 @export var death_fade_duration: float = 0.8
 
-# Nodes references
+# Nodes references 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var hitbox_attack: Area2D = $HitboxAttack
 @onready var attack_cooldown_timer: Timer = $AttackCooldownTimer
@@ -37,6 +37,7 @@ signal player_died()
 @onready var dash_cooldown_timer: Timer = $DashCooldownTimer
 @onready var invulnerability_timer: Timer = $InvulnerabilityTimer
 @onready var camera: Camera2D = $Camera2D
+@onready var hurt_timer: Timer = $HurtTimer
 
 # State Machine
 enum State {IDLE, MOVING, ATTACKING, DASHING, HURT, DEAD}
@@ -45,6 +46,7 @@ var current_state: State = State.IDLE
 # Direction Management
 enum Direction {RIGHT, LEFT, UP, DOWN}
 var current_direction: Direction = Direction.DOWN
+var previous_direction: Direction = Direction.DOWN
 
 # State variables
 var dash_direction: Vector2 = Vector2.ZERO
@@ -54,6 +56,8 @@ var can_dash: bool = true
 var is_invulnerable: bool = false
 var current_health: int = 0
 var last_hit_direction: Vector2 = Vector2.ZERO
+var current_tween: Tween
+var _animation_cache = {}
 
 # Constants for direction and hitbox
 const DIRECTION_VECTORS = {
@@ -79,6 +83,16 @@ const DIRECTION_STRINGS = {
 
 func _ready() -> void:
 	initialize_player()
+	_cache_animation_names()
+
+func _cache_animation_names() -> void:
+	for dir_key in DIRECTION_STRINGS:
+		var dir_string = DIRECTION_STRINGS[dir_key]
+		_animation_cache["idle_" + dir_string] = "idle_" + dir_string
+		_animation_cache["attack_" + dir_string] = "attack_" + dir_string
+		_animation_cache["dash_" + dir_string] = "dash_" + dir_string
+		_animation_cache["hurt_" + dir_string] = "hurt_" + dir_string
+		_animation_cache[dir_string] = dir_string  # Fallback animations
 
 func initialize_player() -> void:
 	hitbox_attack.monitoring = false
@@ -90,24 +104,26 @@ func initialize_player() -> void:
 	dash_timer.wait_time = dash_duration
 	dash_cooldown_timer.wait_time = dash_cooldown
 	invulnerability_timer.wait_time = invulnerability_duration
+	hurt_timer.one_shot = true
+	hurt_timer.wait_time = 0.3
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	handle_input()
 	update_animation()
 	
 	# Blinking effect when invulnerable
 	if is_invulnerable and current_state != State.DEAD:
-		animated_sprite.modulate.a = sin(Time.get_ticks_msec() * 0.01) * 0.5 + 0.5
+		animated_sprite.modulate.a = sin(Time.get_ticks_msec() * 0.01) * delta + 0.5
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if current_state == State.DEAD:
 		return
 		
 	movement_input = get_movement_input()
-	calculate_velocity()
+	calculate_velocity(delta)
 	move_and_slide()
 
-func calculate_velocity() -> void:
+func calculate_velocity(delta: float) -> void:
 	var target_velocity = Vector2.ZERO
 	
 	match current_state:
@@ -121,11 +137,11 @@ func calculate_velocity() -> void:
 	
 	# Apply acceleration, deceleration, or friction based on movement state
 	if target_velocity.length() > 0:
-		velocity = velocity.lerp(target_velocity, acceleration)
+		velocity = velocity.lerp(target_velocity, acceleration * delta * 60.0)
 	else:
 		# Apply deceleration when actively stopping and friction when idle
 		var stop_factor = deceleration if movement_input == Vector2.ZERO and velocity.length() > 0 else friction
-		velocity = velocity.lerp(Vector2.ZERO, stop_factor)
+		velocity = velocity.lerp(Vector2.ZERO, stop_factor * delta * 60.0)
 
 func handle_input() -> void:
 	if current_state == State.DEAD or current_state == State.HURT:
@@ -154,30 +170,29 @@ func get_movement_input() -> Vector2:
 	if current_state == State.ATTACKING or current_state == State.HURT:
 		return input
 	
-	# Check each direction and set the current facing direction
+	previous_direction = current_direction
+	
+	# Improved input handling
 	if Input.is_action_pressed("move_right"):
 		input.x += 1
-		current_direction = Direction.RIGHT
+		if input.y == 0 or Input.is_action_just_pressed("move_right"):
+			current_direction = Direction.RIGHT
 	if Input.is_action_pressed("move_left"):
 		input.x -= 1
-		current_direction = Direction.LEFT
+		if input.y == 0 or Input.is_action_just_pressed("move_left"):
+			current_direction = Direction.LEFT
 	if Input.is_action_pressed("move_up"):
 		input.y -= 1
-		current_direction = Direction.UP
+		if input.x == 0 or Input.is_action_just_pressed("move_up"):
+			current_direction = Direction.UP
 	if Input.is_action_pressed("move_down"):
 		input.y += 1
-		current_direction = Direction.DOWN
-	
-	# Prioritize last pressed direction for diagonal movement
-	if input.x != 0 and input.y != 0:
-		if Input.is_action_just_pressed("move_right"):
-			current_direction = Direction.RIGHT
-		elif Input.is_action_just_pressed("move_left"):
-			current_direction = Direction.LEFT
-		elif Input.is_action_just_pressed("move_up"):
-			current_direction = Direction.UP
-		elif Input.is_action_just_pressed("move_down"):
+		if input.x == 0 or Input.is_action_just_pressed("move_down"):
 			current_direction = Direction.DOWN
+	
+	# If no direction is pressed but was previously moving, keep the last direction
+	if input.length() == 0 and current_state == State.MOVING:
+		current_direction = previous_direction
 	
 	# Update movement state based on input
 	if input.length() > 0 and current_state == State.IDLE:
@@ -189,30 +204,38 @@ func get_movement_input() -> Vector2:
 	return input.normalized() if input.length() > 0 else input
 
 func update_animation() -> void:
+	var dir_string = DIRECTION_STRINGS[current_direction]
+	var anim_name = ""
+	
 	match current_state:
 		State.ATTACKING:
-			# TODO: ATTACKING Animation
-			#animated_sprite.play("attack_" + DIRECTION_STRINGS[current_direction])
-			animated_sprite.play(DIRECTION_STRINGS[current_direction])
+			# Try to use attack animation, fall back to direction if not available
+			anim_name = _get_animation_name("attack_" + dir_string, dir_string)
 		State.DASHING:
-			# TODO: DASHING Animation
-			#animated_sprite.play("dash_" + DIRECTION_STRINGS[current_direction])
-			animated_sprite.play(DIRECTION_STRINGS[current_direction])
+			# Try to use dash animation, fall back to direction if not available
+			anim_name = _get_animation_name("dash_" + dir_string, dir_string)
 		State.MOVING:
-			# Determine animation based on direction
-			animated_sprite.play(DIRECTION_STRINGS[current_direction])
+			anim_name = dir_string
 		State.IDLE:
-			# TODO: IDLE Animation
-			#animated_sprite.play("idle_" + DIRECTION_STRINGS[current_direction])
-			animated_sprite.play(DIRECTION_STRINGS[current_direction])
+			# Try to use idle animation, fall back to direction if not available
+			anim_name = _get_animation_name("idle_" + dir_string, dir_string)
 		State.HURT:
-			# TODO: HURT Animation
-			#animated_sprite.play("hurt_" + DIRECTION_STRINGS[current_direction])
-			animated_sprite.play(DIRECTION_STRINGS[current_direction])
+			# Try to use hurt animation, fall back to direction if not available
+			anim_name = _get_animation_name("hurt_" + dir_string, dir_string)
 		State.DEAD:
-			# TODO: DEAD Animation
-			#animated_sprite.play("dead")
-			pass
+			anim_name = _get_animation_name("dead", dir_string)
+	
+	if animated_sprite.animation != anim_name:
+		animated_sprite.play(anim_name)
+
+# Helper to check if animation exists, using cached names
+func _get_animation_name(primary: String, fallback: String) -> String:
+	var primary_name = _animation_cache.get(primary, primary)
+	var fallback_name = _animation_cache.get(fallback, fallback)
+	
+	if animated_sprite.sprite_frames.has_animation(primary_name):
+		return primary_name
+	return fallback_name
 
 func attack() -> void:
 	can_attack = false
@@ -225,8 +248,12 @@ func attack() -> void:
 
 func dash() -> void:
 	can_dash = false
-	# Use current movement input or facing direction
-	dash_direction = movement_input if movement_input != Vector2.ZERO else DIRECTION_VECTORS[current_direction]
+	
+	# Use current movement input or facing direction, ensuring it's normalized
+	if movement_input != Vector2.ZERO:
+		dash_direction = movement_input.normalized()
+	else:
+		dash_direction = DIRECTION_VECTORS[current_direction]
 	
 	# Set invulnerable during dash
 	set_invulnerable(true)
@@ -239,6 +266,9 @@ func position_hitbox() -> void:
 	hitbox_attack.rotation_degrees = HITBOX_ROTATIONS[current_direction]
 
 func change_state(new_state: State) -> void:
+	if current_state == new_state:
+		return
+		
 	# Exit current state logic
 	match current_state:
 		State.ATTACKING:
@@ -250,7 +280,8 @@ func change_state(new_state: State) -> void:
 		State.IDLE:
 			pass
 		State.HURT:
-			pass
+			if hurt_timer and hurt_timer.is_stopped() == false:
+				hurt_timer.stop()
 		State.DEAD:
 			return  # Don't allow state change if dead
 	
@@ -268,7 +299,8 @@ func change_state(new_state: State) -> void:
 		State.IDLE:
 			pass
 		State.HURT:
-			pass
+			if hurt_timer:
+				hurt_timer.start()
 		State.DEAD:
 			die()
 
@@ -281,32 +313,33 @@ func take_damage(damage: int, source_position: Vector2 = Vector2.ZERO) -> void:
 	if source_position != Vector2.ZERO:
 		last_hit_direction = (global_position - source_position).normalized()
 	else:
-		# If no source position, knockback opposite to facing direction
 		last_hit_direction = -DIRECTION_VECTORS[current_direction]
 	
 	# Apply damage
 	current_health = max(0, current_health - damage)
 	
+	if current_tween and current_tween.is_valid():
+		current_tween.kill()
+	
 	# Flash effect
 	animated_sprite.modulate = Color(1.5, 0.3, 0.3, 1.0)
-	var tween = create_tween()
-	tween.tween_property(animated_sprite, "modulate", Color(1, 1, 1, 1), 0.2)
+	current_tween = create_tween()
+	current_tween.tween_property(animated_sprite, "modulate", Color(1, 1, 1, 1), 0.2)
 	
-	# Emit signal
 	health_changed.emit(current_health, max_health)
 	
-	# Check if player is dead
 	if current_health <= 0:
 		change_state(State.DEAD)
 	else:
 		# Apply hit reaction
-		camera.add_trauma(0.5)
+		if camera.has_method("add_trauma"):
+			camera.add_trauma(0.5)
 		change_state(State.HURT)
 		set_invulnerable(true)
-		
-		# Timer to exit hurt state
-		var hurt_timer = get_tree().create_timer(0.3)
-		hurt_timer.timeout.connect(func(): if current_state == State.HURT: change_state(State.IDLE))
+
+func _on_hurt_timer_timeout() -> void:
+	if current_state == State.HURT:
+		change_state(State.IDLE)
 
 func set_invulnerable(value: bool) -> void:
 	is_invulnerable = value
@@ -322,13 +355,16 @@ func die() -> void:
 	set_physics_process(false)
 	set_process_input(false)
 	
-	# Emit signal
+	# Cancel any existing tween
+	if current_tween and current_tween.is_valid():
+		current_tween.kill()
+	
 	player_died.emit()
 	
 	# Fade out animation
-	var tween = create_tween()
-	tween.tween_property(animated_sprite, "modulate:a", 0.0, death_fade_duration)
-	tween.tween_callback(func(): queue_free())
+	current_tween = create_tween()
+	current_tween.tween_property(animated_sprite, "modulate:a", 0.0, death_fade_duration)
+	current_tween.tween_callback(queue_free)
 
 func _on_attack_timer_timeout() -> void:
 	if current_state == State.ATTACKING:
