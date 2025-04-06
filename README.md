@@ -14,7 +14,10 @@
 - [ ] Crear animación de DEATH (player?/slime)
 
 ### CÓDIGO
-
+- [ ] Implementar AnimationPlayer (slime).
+- [ ] Revisar decoraciones.
+- [ ] Revisar cámara.
+- [ ] Implementar nivel con múltiples salas
 
 ### SFX / SONIDOS / MÚSICA
 - [ ] Buscar/crear hit_sound
