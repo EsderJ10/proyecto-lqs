@@ -43,32 +43,21 @@ var player_distance: float = 0.0
 var knockback_direction: Vector2 = Vector2.ZERO
 var speed_squared: float = 0.0
 
-var directions = {
-	"right": "right",
-	"left": "left", 
-	"up": "up",
-	"down": "down"
-}
-
 func _ready() -> void:
-	# Initialize the enemy
 	initialize()
 	
-	# Add to group for easier management
 	add_to_group("enemies")
 	
-	# Precalculate squared values for more efficient comparisons
+	# Precalculate squared values
 	speed_squared = max_speed * max_speed
 
+# Clean up any signal connections
 func _exit_tree() -> void:
-	# Clean up any signal connections
-	if player and player.has_signal("player_died"):
-		if player.is_connected("player_died", _on_player_died):
-			player.disconnect("player_died", _on_player_died)
+	if player and player.has_signal("player_died") and player.is_connected("player_died", _on_player_died):
+		player.disconnect("player_died", _on_player_died)
 
 # Initialize function that child classes can override
 func initialize() -> void:
-	# Configure timers
 	if stun_timer:
 		stun_timer.wait_time = stun_time
 		stun_timer.one_shot = true
@@ -91,7 +80,7 @@ func _physics_process(delta: float) -> void:
 				
 				# Add separation force when too close
 				if player_distance < 40.0:
-					var separation = (global_position - player.global_position).normalized() * 25.0
+					var separation: Vector2 = (global_position - player.global_position).normalized() * 25.0
 					velocity += separation
 
 				# Try to attack if close enough and can attack
@@ -100,11 +89,11 @@ func _physics_process(delta: float) -> void:
 			else:
 				transition_to_state(EnemyState.IDLE)
 		EnemyState.IDLE:
-		# Slow down if not chasing
+			# Slow down if not chasing
 			velocity = velocity.lerp(Vector2.ZERO, 0.2)
 
-# Handle collision with better separation
-	var collision = move_and_collide(velocity * delta, true)
+	# Handle collision
+	var collision: KinematicCollision2D = move_and_collide(velocity * delta, true)
 	if collision and collision.get_collider() is Player:
 		global_position += collision.get_normal() * collision.get_depth()
 		velocity = velocity.bounce(collision.get_normal()) * 0.6
@@ -115,9 +104,12 @@ func _physics_process(delta: float) -> void:
 # Update cached player data
 func update_player_data() -> void:
 	if player:
-		var to_player = player.global_position - global_position
+		var to_player: Vector2 = player.global_position - global_position
 		player_distance = to_player.length()
-		direction_to_player = to_player / player_distance if player_distance > 0 else Vector2.DOWN
+		if player_distance > 0:
+			direction_to_player = to_player / player_distance
+		else:
+			direction_to_player = Vector2.DOWN
 
 func chase_player(delta: float) -> void:
 	if not player:
@@ -128,20 +120,17 @@ func chase_player(delta: float) -> void:
 	target_velocity = direction_to_player * speed
 
 	# Add repulsion vector when very close to player
-	if player_distance < 30.0:  # Minimum desired distance
-		# Add force away from player
+	if player_distance < 30.0:
 		target_velocity = target_velocity.lerp(-direction_to_player * speed, 0.5)
 
-	# Improved smoothing with delta
 	velocity = velocity.lerp(target_velocity, delta * follow_smoothing)
 
-	# Cap to max speed using squared length for efficiency
+	# Cap to max speed
 	if velocity.length_squared() > speed_squared:
 		velocity = velocity.normalized() * max_speed
 	
-# Method for animation updates
 func update_animation() -> void:
-	push_error("Function 'update_animation' must be implemented by the child class")
+	push_error("** ERROR: Function 'update_animation' must be implemented by %s" % [get_class()])
 
 func get_direction_name(direction: Vector2) -> String:
 	# Get cardinal direction name based on vector2
@@ -168,9 +157,8 @@ func _on_detection_area_body_entered(body: Node2D) -> void:
 func _on_detection_area_body_exited(body: Node2D) -> void:
 	if body is Player and body == player:
 		# Clean up player connections
-		if player.has_signal("player_died"):
-			if player.is_connected("player_died", _on_player_died):
-				player.disconnect("player_died", _on_player_died)
+		if player.has_signal("player_died") and player.is_connected("player_died", _on_player_died):
+			player.disconnect("player_died", _on_player_died)
 				
 		player = null
 		transition_to_state(EnemyState.IDLE)
@@ -204,8 +192,7 @@ func flash_on_hit() -> void:
 	# Hit flash effect
 	animated_sprite.modulate = Color(1.5, 1.5, 1.5, 1)  # Bright white flash
 	
-	# Return to normal after a short duration using a tween
-	var tween = create_tween()
+	var tween: Tween = create_tween()
 	tween.tween_property(animated_sprite, "modulate", Color(1, 1, 1, 1), hit_flash_duration)
 
 func apply_knockback() -> void:
@@ -217,14 +204,12 @@ func attack_player() -> void:
 	if not player or current_state == EnemyState.DEAD:
 		return
 		
-	# Cooldown
 	can_attack = false
 	attack_cooldown_timer.start()
-	
-	# Apply damage to player
+
 	player.take_damage(damage, global_position)
 	
-	# Add a little lunge effect - use cached direction
+	# Add a little lunge effect
 	velocity += direction_to_player * 100
 
 func _on_stun_timer_timeout() -> void:
@@ -234,11 +219,10 @@ func _on_stun_timer_timeout() -> void:
 func _on_attack_cooldown_timer_timeout() -> void:
 	can_attack = true
 
-# Virtual method for death behavior
+# Method for death behavior
 func die() -> void:
 	transition_to_state(EnemyState.DEAD)
 	
-	# Disable collisions
 	if collision_shape:
 		collision_shape.set_deferred("disabled", true)
 	set_collision_layer_value(1, false)  
@@ -248,12 +232,11 @@ func die() -> void:
 	
 	# Fade out effect
 	if animated_sprite:
-		var tween = create_tween()
+		var tween: Tween = create_tween()
 		tween.tween_property(animated_sprite, "modulate", Color(1, 1, 1, 0), 0.5)
 		tween.tween_callback(queue_free)
 
 func transition_to_state(new_state: EnemyState) -> void:
-	# Skip if state is unchanged
 	if current_state == new_state:
 		return
 		
