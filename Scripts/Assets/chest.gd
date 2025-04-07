@@ -49,7 +49,7 @@ func _ready() -> void:
 	initialize_chest()
 
 func _process(_delta: float) -> void:
-	if player_in_range and player and Input.is_action_just_pressed("interact") and not is_open:
+	if player_in_range and not is_open and Input.is_action_just_pressed("interact"):
 		open_chest()
 
 func create_unique_shapes() -> void:
@@ -62,13 +62,13 @@ func initialize_chest() -> void:
 	update_chest_appearance()
 
 func update_chest_appearance() -> void:
-	var state = "closed" if not is_open else "open"
+	var state = "open" if is_open else "closed"
 	var animation_name = _get_perspective_name() + "_" + state
 	
 	if animated_sprite.sprite_frames.has_animation(animation_name):
 		animated_sprite.play(animation_name)
 	else:
-		push_warning("CHEST: Missing animation '%s'" % animation_name)
+		push_warning("* WARNING: CHEST: Missing animation '%s'" % animation_name)
 		# Fallback to a default animation if available
 		if animated_sprite.sprite_frames.has_animation("front_closed"):
 			animated_sprite.play("front_closed")
@@ -91,7 +91,7 @@ func update_shapes() -> void:
 	var interaction_rect_shape = interaction_shape.shape as RectangleShape2D
 	
 	if not collision_rect_shape or not interaction_rect_shape:
-		push_error("CHEST: Shape resources not properly created")
+		push_error("* ERROR: CHEST: Shape resources not properly created")
 		return
 	
 	var settings = DIMENSIONS.get(chest_perspective, DIMENSIONS[ChestPerspective.FRONT])
@@ -118,7 +118,7 @@ func play_open_animation() -> void:
 	tween.tween_property(animated_sprite, "scale", Vector2(1.1, 1.1), 0.1)
 	tween.tween_property(animated_sprite, "scale", Vector2(1.0, 1.0), 0.1)
 
-func _on_interaction_area_body_entered(body: Node2D) -> void: 
+func _on_interaction_area_body_entered(body: Node2D) -> void:
 	if body is Player:
 		player_in_range = true
 		player = body
