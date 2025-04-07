@@ -11,7 +11,12 @@ enum ChestPerspective {
 }
 
 # Parameters
-@export var chest_perspective: ChestPerspective = ChestPerspective.FRONT
+@export var chest_perspective: ChestPerspective = ChestPerspective.FRONT:
+	set(value):
+		if chest_perspective != value:
+			chest_perspective = value
+			if is_inside_tree():
+				update_chest_appearance()
 
 # Nodes references
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -46,17 +51,16 @@ const DIMENSIONS = {
 func _ready() -> void:
 	create_unique_shapes()
 	initialize_chest()
-	
-	# Make sure signal connections are properly set
-	# Note: This is optional if you already have them connected in the editor
+
 	if not interaction_area.is_connected("body_entered", _on_interaction_area_body_entered):
 		interaction_area.connect("body_entered", _on_interaction_area_body_entered)
 	if not interaction_area.is_connected("body_exited", _on_interaction_area_body_exited):
 		interaction_area.connect("body_exited", _on_interaction_area_body_exited)
+		
+	set_process(false)
 
 func _process(_delta: float) -> void:
-	# Only check for interaction when player is in range and chest is closed
-	if player_in_range and not is_open and Input.is_action_just_pressed("interact"):
+	if Input.is_action_just_pressed("interact"):
 		open_chest()
 
 func create_unique_shapes() -> void:
@@ -69,17 +73,27 @@ func initialize_chest() -> void:
 	update_chest_appearance()
 
 func update_chest_appearance() -> void:
+	if not is_instance_valid(animated_sprite) or not animated_sprite:
+		push_error("* ERROR: CHEST: AnimatedSprite2D not found or initialized")
+		return
+		
+	if not animated_sprite.sprite_frames:
+		push_error("* ERROR: CHEST: No sprite frames assigned to AnimatedSprite2D")
+		return
+		
 	var state = "open" if is_open else "closed"
 	var animation_name = _get_perspective_name() + "_" + state
 	
 	if animated_sprite.sprite_frames.has_animation(animation_name):
 		animated_sprite.play(animation_name)
 	else:
-		push_warning("WARNING: CHEST: Missing animation '%s'" % animation_name)
+		push_warning("* WARNING: CHEST: Missing animation '%s'" % animation_name)
 		# Fallback to a default animation if available
 		if animated_sprite.sprite_frames.has_animation("front_closed"):
 			animated_sprite.play("front_closed")
 	
+	# Only update shapes when perspective changes
+	# This is handled by the setter and set_perspective function
 	update_shapes()
 
 func _get_perspective_name() -> String:
@@ -94,11 +108,15 @@ func _get_perspective_name() -> String:
 			return "front" # Default fallback
 
 func update_shapes() -> void:
+	if not is_instance_valid(collision_shape) or not is_instance_valid(interaction_shape):
+		push_error("* ERROR: CHEST: Shape nodes not found or initialized")
+		return
+		
 	var collision_rect_shape = collision_shape.shape as RectangleShape2D
 	var interaction_rect_shape = interaction_shape.shape as RectangleShape2D
 	
 	if not collision_rect_shape or not interaction_rect_shape:
-		push_error("ERROR: CHEST: Shape resources not properly created")
+		push_error("* ERROR: CHEST: Shape resources not properly created")
 		return
 	
 	var settings = DIMENSIONS.get(chest_perspective, DIMENSIONS[ChestPerspective.FRONT])
@@ -119,22 +137,33 @@ func open_chest() -> void:
 	
 	# Emit signal with chest position
 	chest_opened.emit(global_position)
+	
+	set_process(false)
 
 func play_open_animation() -> void:
-	var tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_ELASTIC)
-	tween.tween_property(animated_sprite, "scale", Vector2(1.1, 1.1), 0.1)
-	tween.tween_property(animated_sprite, "scale", Vector2(1.0, 1.0), 0.1)
+	if not is_instance_valid(animated_sprite):
+		return
+		
+	var tween = create_tween()
+	if tween:
+		tween.set_ease(Tween.EASE_OUT)
+		tween.set_trans(Tween.TRANS_ELASTIC)
+		tween.tween_property(animated_sprite, "scale", Vector2(1.1, 1.1), 0.1)
+		tween.tween_property(animated_sprite, "scale", Vector2(1.0, 1.0), 0.1)
 
 func _on_interaction_area_body_entered(body: Node2D) -> void:
-	if body is Player:
+	if body is Player and not is_open:
 		player_in_range = true
 		player = body
+		# Enable input processing only when player is in range and chest is not open
+		set_process(true)
 
 func _on_interaction_area_body_exited(body: Node2D) -> void:
 	if body is Player:
 		player_in_range = false
 		player = null
+		# Disable input processing when player moves away
+		set_process(false)
 
 func set_perspective(perspective: ChestPerspective) -> void:
-	chest_perspective = perspective
-	update_chest_appearance()
+	self.chest_perspective = perspective
