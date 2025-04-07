@@ -12,7 +12,6 @@ enum ChestPerspective {
 
 # Parameters
 @export var chest_perspective: ChestPerspective = ChestPerspective.FRONT
-@export var interaction_distance: float = 53.0
 
 # Nodes references
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -47,8 +46,16 @@ const DIMENSIONS = {
 func _ready() -> void:
 	create_unique_shapes()
 	initialize_chest()
+	
+	# Make sure signal connections are properly set
+	# Note: This is optional if you already have them connected in the editor
+	if not interaction_area.is_connected("body_entered", _on_interaction_area_body_entered):
+		interaction_area.connect("body_entered", _on_interaction_area_body_entered)
+	if not interaction_area.is_connected("body_exited", _on_interaction_area_body_exited):
+		interaction_area.connect("body_exited", _on_interaction_area_body_exited)
 
 func _process(_delta: float) -> void:
+	# Only check for interaction when player is in range and chest is closed
 	if player_in_range and not is_open and Input.is_action_just_pressed("interact"):
 		open_chest()
 
@@ -68,7 +75,7 @@ func update_chest_appearance() -> void:
 	if animated_sprite.sprite_frames.has_animation(animation_name):
 		animated_sprite.play(animation_name)
 	else:
-		push_warning("* WARNING: CHEST: Missing animation '%s'" % animation_name)
+		push_warning("WARNING: CHEST: Missing animation '%s'" % animation_name)
 		# Fallback to a default animation if available
 		if animated_sprite.sprite_frames.has_animation("front_closed"):
 			animated_sprite.play("front_closed")
@@ -91,7 +98,7 @@ func update_shapes() -> void:
 	var interaction_rect_shape = interaction_shape.shape as RectangleShape2D
 	
 	if not collision_rect_shape or not interaction_rect_shape:
-		push_error("* ERROR: CHEST: Shape resources not properly created")
+		push_error("ERROR: CHEST: Shape resources not properly created")
 		return
 	
 	var settings = DIMENSIONS.get(chest_perspective, DIMENSIONS[ChestPerspective.FRONT])

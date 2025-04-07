@@ -102,6 +102,3 @@ shape = SubResource("RectangleShape2D_cjfl1")
 position = Vector2(0, -2.5)
 shape = SubResource("RectangleShape2D_1puaa")
 debug_color = Color(0, 0.644663, 0.276369, 0.42)
-
-[connection signal="body_entered" from="InteractionArea" to="." method="_on_interaction_area_body_entered"]
-[connection signal="body_exited" from="InteractionArea" to="." method="_on_interaction_area_body_exited"]
