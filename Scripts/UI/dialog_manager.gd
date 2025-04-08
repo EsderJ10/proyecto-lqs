@@ -20,7 +20,7 @@ func _notification(what: int) -> void:
 		# Clean up all active dialogs
 		for dialog_id in active_dialogs.keys():
 			remove_dialog(dialog_id)
-
+      
 func create_dialog(owner_id: int, text: String) -> Control:
 	if active_dialogs.has(owner_id):
 		return active_dialogs[owner_id]
