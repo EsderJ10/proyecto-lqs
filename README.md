@@ -15,7 +15,6 @@
 
 ### CÓDIGO
 - [ ] Implementar AnimationPlayer (slime).
-- [ ] Revisar decoraciones (interactividad-colisión de sign...).
 - [ ] Revisar cámara.
 - [ ] Implementar nivel con múltiples salas
 
