@@ -1,16 +1,15 @@
 extends Node
 class_name DialogManager
 
+# Resources
 const DIALOG_SCENE = preload("res://Scenes/UI/dialog_scroll.tscn")
-static var instance: DialogManager = null
+
+# Canvas layer for dialogs
 var canvas_layer: CanvasLayer = null
 var active_dialogs: Dictionary = {}
 
-func _init() -> void:
-	if instance == null:
-		instance = self
-	
 func _ready() -> void:
+	# Create canvas layer
 	canvas_layer = CanvasLayer.new()
 	canvas_layer.layer = 10
 	canvas_layer.name = "DialogLayer"
@@ -18,14 +17,9 @@ func _ready() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE:
+		# Clean up all active dialogs
 		for dialog_id in active_dialogs.keys():
 			remove_dialog(dialog_id)
-
-static func get_instance() -> DialogManager:
-	if instance == null:
-		instance = DialogManager.new()
-		Engine.get_main_loop().root.call_deferred("add_child", instance)
-	return instance
 
 func create_dialog(owner_id: int, text: String) -> Control:
 	if active_dialogs.has(owner_id):
