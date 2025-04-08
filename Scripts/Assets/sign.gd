@@ -1,8 +1,6 @@
 extends StaticBody2D
 class_name Sign
 
-const DIALOG_SCENE = preload("res://Scenes/UI/dialog_scroll.tscn")
-
 enum SignPerspective {
 	FRONT,
 	LEFT,
@@ -12,7 +10,6 @@ enum SignPerspective {
 # Parameters
 @export var actual_perspective: SignPerspective = SignPerspective.FRONT
 @export var sign_text: String = "I was wandering why the baseball was getting bigger. Then it hit me."
-@export var interaction_distance: float = 53.0
 
 # Nodes references
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -25,13 +22,11 @@ var dialog_instance: Control = null
 var dialog_box: Panel = null
 var dialog_label: Label = null
 var is_dialog_open: bool = false
-var viewport_size: Vector2
 
 # State variables
 var player_in_range: bool = false
 var player: Player = null
-
-
+var input_connected: bool = false
 
 # Constants for collision and interaction shapes
 const DIMENSIONS = {
@@ -52,27 +47,35 @@ const DIMENSIONS = {
 	}
 }
 
-# Shared dialog canvas layer
-static var dialog_canvas_layer: CanvasLayer = null
-
 func _ready() -> void:
-	viewport_size = get_viewport_rect().size
-	
-	create_shapes_if_needed()
 	initialize_sign()
+	
+	# Connect to viewport size changed signal
+	get_viewport().size_changed.connect(_on_viewport_size_changed)
+	
+	set_process_input(false)
 
-func _process(_delta: float) -> void:
-	if player_in_range and player:
-		if Input.is_action_just_pressed("interact") and not is_dialog_open:
-			show_dialog()
-		elif Input.is_action_just_pressed("ui_close") and is_dialog_open:
-			hide_dialog()
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE:
+		_cleanup_resources()
 
-func create_shapes_if_needed() -> void:
-	if not collision_shape.shape:
-		collision_shape.shape = RectangleShape2D.new()
-	if not interaction_shape.shape:
-		interaction_shape.shape = RectangleShape2D.new()
+func _cleanup_resources() -> void:
+	_unregister_input_handlers()
+	
+	# Clean up dialog resources
+	if dialog_instance:
+		var dialog_manager = get_node("/root/dialog_Manager")
+		if dialog_manager:
+			dialog_manager.remove_dialog(get_instance_id())
+
+func _input(event: InputEvent) -> void:
+	if not player_in_range:
+		return
+		
+	if event.is_action_pressed("interact") and not is_dialog_open:
+		show_dialog()
+	elif event.is_action_pressed("ui_close") and is_dialog_open:
+		hide_dialog()
 
 func initialize_sign() -> void:
 	update_sign_appearance()
@@ -106,7 +109,7 @@ func update_shapes() -> void:
 	var interaction_rect_shape = interaction_shape.shape as RectangleShape2D
 	
 	if not collision_rect_shape or not interaction_rect_shape:
-		push_error("* SIGN: Shape resources not properly created")
+		push_error("* SIGN: Shape resources not properly created in editor")
 		return
 	
 	var settings = DIMENSIONS.get(actual_perspective, DIMENSIONS[SignPerspective.FRONT])
@@ -117,72 +120,76 @@ func update_shapes() -> void:
 	interaction_rect_shape.size = settings["interaction"]
 	interaction_shape.position = settings["offset"]
 
-func get_or_create_canvas_layer() -> CanvasLayer:
-	if not dialog_canvas_layer:
-		dialog_canvas_layer = CanvasLayer.new()
-		dialog_canvas_layer.layer = 10
-		dialog_canvas_layer.name = "DialogLayer"
-		get_tree().root.add_child(dialog_canvas_layer)
-	return dialog_canvas_layer
+func _on_viewport_size_changed() -> void:
+	if is_dialog_open and dialog_instance:
+		_position_dialog()
 
-func create_dialog_instance() -> void:
-	if dialog_instance:
-		return
-		
-	dialog_instance = DIALOG_SCENE.instantiate()
-	get_or_create_canvas_layer().add_child(dialog_instance)
-	
-	# Node references
-	dialog_box = dialog_instance.get_node("DialogBox")
-	dialog_label = dialog_instance.get_node_or_null("DialogBox/Label")
-	
-	if dialog_label:
-		dialog_label.text = sign_text
-	
-	# Initially hide the dialog
-	dialog_instance.visible = false
+func _position_dialog() -> void:
+	var viewport_size = get_viewport_rect().size
+	dialog_instance.position.y = viewport_size.y - 100
+
+func _register_input_handlers() -> void:
+	input_connected = true
+	set_process_input(true)
+
+func _unregister_input_handlers() -> void:
+	input_connected = false
+	set_process_input(false)
+
+func _create_dialog_if_needed() -> void:
+	if not dialog_instance:
+		var dialog_manager = get_node_or_null("/root/dialog_Manager")
+		if not dialog_manager:
+			push_error("* ERROR: DialogManager autoload is not available!")
+			return
+			
+		dialog_instance = dialog_manager.create_dialog(get_instance_id(), sign_text)
+		dialog_box = dialog_instance.get_node("DialogBox")
+		dialog_label = dialog_instance.get_node_or_null("DialogBox/Label")
 
 func show_dialog() -> void:
-	if not dialog_instance:
-		create_dialog_instance()
+	_create_dialog_if_needed()
 	
+	if not dialog_instance:
+		return
+		
 	dialog_instance.visible = true
 	is_dialog_open = true
 	
-	var tween = create_tween()
-	
-	# Position animation
+	# Reset initial properties
+	var viewport_size = get_viewport_rect().size
 	dialog_instance.position.y = viewport_size.y
-	tween.set_parallel()
-	tween.tween_property(dialog_instance, "position:y", viewport_size.y - 100, 0.2)
-	tween.set_ease(Tween.EASE_OUT)
-	tween.set_trans(Tween.TRANS_BACK)
-	
-	# Scale animation
 	dialog_box.scale = Vector2(1.0, 0.1)
-	tween.tween_property(dialog_box, "scale", Vector2(1.0, 1.0), 0.25)
-	tween.set_ease(Tween.EASE_OUT)
-	tween.set_trans(Tween.TRANS_CUBIC)
+	
+	var show_tween = create_tween()
+	show_tween.set_parallel()
+	
+	show_tween.tween_property(dialog_instance, "position:y", viewport_size.y - 100, 0.2)
+	show_tween.set_ease(Tween.EASE_OUT)
+	show_tween.set_trans(Tween.TRANS_BACK)
+	
+	show_tween.tween_property(dialog_box, "scale", Vector2(1.0, 1.0), 0.25)
+	show_tween.set_ease(Tween.EASE_OUT)
+	show_tween.set_trans(Tween.TRANS_CUBIC)
 
 func hide_dialog() -> void:
 	if not dialog_instance:
 		return
 		
-	var tween = create_tween()
+	var hide_tween = create_tween()
+	hide_tween.set_parallel()
 	
-	# Position animation
-	tween.set_parallel()
-	tween.tween_property(dialog_instance, "position:y", viewport_size.y, 0.2)
-	tween.set_ease(Tween.EASE_IN)
-	tween.set_trans(Tween.TRANS_BACK)
+	var viewport_size = get_viewport_rect().size
+	hide_tween.tween_property(dialog_instance, "position:y", viewport_size.y, 0.2)
+	hide_tween.set_ease(Tween.EASE_IN)
+	hide_tween.set_trans(Tween.TRANS_BACK)
 	
-	# Scale animation
-	tween.tween_property(dialog_box, "scale", Vector2(1.0, 0.1), 0.2)
-	tween.set_ease(Tween.EASE_IN)
-	tween.set_trans(Tween.TRANS_CUBIC)
+	hide_tween.tween_property(dialog_box, "scale", Vector2(1.0, 0.1), 0.2)
+	hide_tween.set_ease(Tween.EASE_IN)
+	hide_tween.set_trans(Tween.TRANS_CUBIC)
 	
-	# Separate sequence callback after all parallel animations
-	tween.chain().tween_callback(func(): 
+	# Add callback after animations
+	hide_tween.chain().tween_callback(func(): 
 		dialog_instance.visible = false
 		is_dialog_open = false
 	)
@@ -191,11 +198,14 @@ func _on_interaction_area_body_entered(body: Node2D) -> void:
 	if body is Player:
 		player_in_range = true
 		player = body
+		_register_input_handlers()
 
 func _on_interaction_area_body_exited(body: Node2D) -> void:
 	if body is Player:
 		player_in_range = false
 		player = null
+		_unregister_input_handlers()
+		
 		if is_dialog_open:
 			hide_dialog()
 
