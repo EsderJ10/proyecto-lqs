@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://c6aev1ptyww40"
+path="res://.godot/imported/__Segador de Almas.mp3-da9a5255370403a0447a2de6966e2fa3.mp3str"
+
+[deps]
+
+source_file="res://Assets/Audio/__Segador de Almas.mp3"
+dest_files=["res://.godot/imported/__Segador de Almas.mp3-da9a5255370403a0447a2de6966e2fa3.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
