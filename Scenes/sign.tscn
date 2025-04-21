@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=3 uid="uid://do8sgxjcv4qrp"]
 
-[ext_resource type="Texture2D" uid="uid://cijdft78d3krn" path="res://Assets/Tilesets/Decorations/sign.png" id="1_fmf1u"]
+[ext_resource type="Texture2D" uid="uid://cijdft78d3krn" path="res://Assets/Tilesets/Interactables/sign.png" id="1_fmf1u"]
 [ext_resource type="Script" uid="uid://dp01dmplvwu5p" path="res://Scripts/Assets/sign.gd" id="1_m6mpx"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_m6mpx"]
