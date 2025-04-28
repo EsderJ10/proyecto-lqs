@@ -12,7 +12,7 @@
 - [ ] Crear animación de DASHING(player).
 - [ ] Crear animación de IDLE (player/slime).
 - [ ] Crear animación de DEATH (player?/slime)
-- [ ] Implementar nuevo diseño de tutorial_tileset_tile.ap.tres
+- [ ] Implementar nuevo diseño de tutorial_tileset_tilemap.tres
 
 ### CÓDIGO
 - [ ] Implementar AnimationPlayer (slime).
