@@ -1,7 +1,10 @@
-[gd_scene load_steps=3 format=4 uid="uid://btwbo2ioiywce"]
+[gd_scene load_steps=4 format=4 uid="uid://btwbo2ioiywce"]
 
 [ext_resource type="TileSet" uid="uid://ccwksywn3q8o7" path="res://Assets/Tilesets/tutorial_tileset.tres" id="1_jbrgn"]
 [ext_resource type="PackedScene" uid="uid://dmekitbbixaqs" path="res://Scenes/door.tscn" id="2_ij6gl"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jbrgn"]
+size = Vector2(610, 594)
 
 [node name="CombatRoom01" type="Node2D"]
 
@@ -23,3 +26,11 @@ tile_set = ExtResource("1_jbrgn")
 
 [node name="Door" parent="." instance=ExtResource("2_ij6gl")]
 position = Vector2(318, 16)
+
+[node name="RoomArea" type="Area2D" parent="."]
+position = Vector2(24, 56)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RoomArea"]
+position = Vector2(295, 287)
+shape = SubResource("RectangleShape2D_jbrgn")
+debug_color = Color(0.627451, 0.34902, 1, 0.419608)
