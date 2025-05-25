@@ -1,7 +1,10 @@
-[gd_scene load_steps=3 format=4 uid="uid://svfgqfupmaq3"]
+[gd_scene load_steps=4 format=4 uid="uid://svfgqfupmaq3"]
 
 [ext_resource type="TileSet" uid="uid://ccwksywn3q8o7" path="res://Assets/Tilesets/tutorial_tileset.tres" id="1_8s5sr"]
 [ext_resource type="PackedScene" uid="uid://dmekitbbixaqs" path="res://Scenes/door.tscn" id="3_lqar6"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8s5sr"]
+size = Vector2(578, 1194)
 
 [node name="PuzzleRoom" type="Node2D"]
 
@@ -22,3 +25,11 @@ tile_set = ExtResource("1_8s5sr")
 
 [node name="Door" parent="." instance=ExtResource("3_lqar6")]
 position = Vector2(286, 801)
+
+[node name="RoomArea" type="Area2D" parent="."]
+position = Vector2(0, -144)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RoomArea"]
+position = Vector2(288, 592)
+shape = SubResource("RectangleShape2D_8s5sr")
+debug_color = Color(0.626774, 0.348822, 1, 0.42)
