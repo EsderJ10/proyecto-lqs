@@ -1,0 +1,19 @@
+[gd_scene load_steps=5 format=3 uid="uid://dpf0ldhvaswr7"]
+
+[ext_resource type="PackedScene" uid="uid://btwbo2ioiywce" path="res://Scenes/Rooms/tutorial_combat_room01.tscn" id="1_v37xk"]
+[ext_resource type="PackedScene" uid="uid://clvpqn2x0u7ah" path="res://Scenes/Rooms/tutorial_starting_room.tscn" id="2_xlr81"]
+[ext_resource type="PackedScene" uid="uid://cqb077iw8uboh" path="res://Scenes/Rooms/tutorial_combat_room02.tscn" id="3_hr4ts"]
+[ext_resource type="PackedScene" uid="uid://svfgqfupmaq3" path="res://Scenes/Rooms/tutorial_puzzle_room.tscn" id="4_gdhb4"]
+
+[node name="Tutorial" type="Node2D"]
+
+[node name="CombatRoom02" parent="." instance=ExtResource("3_hr4ts")]
+position = Vector2(30, -1298)
+
+[node name="CombatRoom01" parent="." instance=ExtResource("1_v37xk")]
+position = Vector2(29, -643)
+
+[node name="PuzzleRoom" parent="." instance=ExtResource("4_gdhb4")]
+position = Vector2(1247, -1713)
+
+[node name="StartingRoom" parent="." instance=ExtResource("2_xlr81")]

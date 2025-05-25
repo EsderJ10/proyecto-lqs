@@ -6,16 +6,17 @@
 
 ## HIGH
 
-### ANIMACIONES / VISUAL
+### ANIMACIONES / VISUAL / DISEÑO
 - [ ] Modificar la importación de los sprites para evitar/reducir el pixelado.
 - [ ] Crear animación de ATTACKING(player/slime?).
 - [ ] Crear animación de DASHING(player).
 - [ ] Crear animación de IDLE (player/slime).
 - [ ] Crear animación de DEATH (player?/slime)
+- [ ] Implementar nuevo diseño de tutorial_tileset_tilemap.tres
 
 ### CÓDIGO
 - [ ] Implementar AnimationPlayer (slime).
-- [ ] Revisar cámara.
+- [X] Revisar cámara.
 - [ ] Implementar nivel con múltiples salas
 
 ### SFX / SONIDOS / MÚSICA

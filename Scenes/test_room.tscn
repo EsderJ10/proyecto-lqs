@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=4 uid="uid://bpvfh054w0r22"]
+[gd_scene load_steps=10 format=4 uid="uid://bpvfh054w0r22"]
 
 [ext_resource type="Texture2D" uid="uid://wf1llo22bi6o" path="res://Assets/Tilesets/tileset_tutorial.png" id="1_e6fjm"]
 [ext_resource type="PackedScene" uid="uid://b8tpceabf0tgk" path="res://Scenes/player.tscn" id="2_cvyy1"]
 [ext_resource type="PackedScene" uid="uid://8acbffwdxaxm" path="res://Scenes/audio_background.tscn" id="3_bwtym"]
 [ext_resource type="PackedScene" uid="uid://dx2namwh5pomm" path="res://Scenes/slime.tscn" id="4_ql2hy"]
 [ext_resource type="PackedScene" uid="uid://ddamgcjpa8oka" path="res://Scenes/chest.tscn" id="5_3tvqv"]
+[ext_resource type="AudioStream" uid="uid://c6aev1ptyww40" path="res://Assets/Audio/__Segador de Almas.mp3" id="5_hjqbe"]
 [ext_resource type="PackedScene" uid="uid://dmekitbbixaqs" path="res://Scenes/door.tscn" id="6_548gw"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_qwrx2"]
@@ -981,6 +982,7 @@ position = Vector2(547, 295)
 position = Vector2(898, 299)
 
 [node name="audio_background" parent="." instance=ExtResource("3_bwtym")]
+stream = ExtResource("5_hjqbe")
 volume_db = -5.0
 parameters/looping = true
 
