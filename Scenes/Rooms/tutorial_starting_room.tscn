@@ -1,8 +1,11 @@
-[gd_scene load_steps=4 format=4 uid="uid://clvpqn2x0u7ah"]
+[gd_scene load_steps=5 format=4 uid="uid://clvpqn2x0u7ah"]
 
 [ext_resource type="TileSet" uid="uid://ccwksywn3q8o7" path="res://Assets/Tilesets/tutorial_tileset.tres" id="1_ombwb"]
 [ext_resource type="PackedScene" uid="uid://dmekitbbixaqs" path="res://Scenes/door.tscn" id="2_e3snh"]
 [ext_resource type="PackedScene" uid="uid://do8sgxjcv4qrp" path="res://Scenes/sign.tscn" id="3_lt07m"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ombwb"]
+size = Vector2(674, 466)
 
 [node name="StartingRoom" type="Node2D"]
 
@@ -27,3 +30,10 @@ position = Vector2(350, 16)
 
 [node name="Sign" parent="." instance=ExtResource("3_lt07m")]
 position = Vector2(352, 256)
+
+[node name="RoomArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RoomArea"]
+position = Vector2(351, 279)
+shape = SubResource("RectangleShape2D_ombwb")
+debug_color = Color(0.627451, 0.34902, 1, 0.419608)
